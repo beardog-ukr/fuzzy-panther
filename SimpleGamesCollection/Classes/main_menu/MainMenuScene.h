@@ -9,16 +9,26 @@ class MainMenuScene : public cocos2d::Scene,
 public:
   virtual bool init();
 
-  // a selector callback
-  void menuCloseCallback(cocos2d::Ref* pSender);
-
   // implement the "static create()" method manually
   CREATE_FUNC(MainMenuScene);
 
 protected:
   bool initBackground();
-  bool initCloseButton();
+  bool initMainMenu();
+  bool initSettingsMenu();
+  bool initNewGameMenu();
 
+  void mcExit(cocos2d::Ref *pSender);
+  void mcNewGame(cocos2d::Ref *pSender);
+  void mcSettings(cocos2d::Ref *pSender);
+  void mcSwitchToGame(cocos2d::Ref *pSender, const int menuCode);
+
+  cocos2d::Menu* mainMenu;
+
+  cocos2d::Sprite* settingsMenu; // TODO: implement real menu instead of sprite stub
+  cocos2d::Menu* newGameMenu;
+  cocos2d::Node* currentSideMenu;
+  void switchSideMenu(cocos2d::Node* newMenu);
 };
 
 
