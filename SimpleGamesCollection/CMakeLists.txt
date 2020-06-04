@@ -32,11 +32,15 @@ endif()
 # add cross-platforms source files and header files 
 list(APPEND GAME_SOURCE
      Classes/AppDelegate.cpp
+     Classes/asteroids/AsteroidsGameNode.cpp
+     Classes/asteroids/AsteroidsScene.cpp
      Classes/main_menu/BackgroundNode.cpp
      Classes/main_menu/MainMenuScene.cpp
      )
 list(APPEND GAME_HEADER
      Classes/AppDelegate.h
+     Classes/asteroids/AsteroidsGameNode.h
+     Classes/asteroids/AsteroidsScene.h
      Classes/main_menu/BackgroundNode.h
      Classes/main_menu/MainMenuScene.h
      )

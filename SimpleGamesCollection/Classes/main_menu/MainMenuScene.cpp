@@ -1,5 +1,7 @@
 #include "MainMenuScene.h"
 
+#include "asteroids/AsteroidsScene.h"
+
 #include "SixCatsLogger.h"
 #include "SixCatsLoggerMacro.h"
 #include <sstream>
@@ -66,8 +68,9 @@ bool MainMenuScene::init() {
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 bool MainMenuScene::initBackground() {
-  BackgroundNode* backgroundNode = BackgroundNode::create(getContentSize(), c6);
+  const string filename = "menu/seamless-1657428_640.jpg";
 
+  BackgroundNode* backgroundNode = BackgroundNode::create(getContentSize(), filename, c6);
   if (backgroundNode == nullptr) {
     return false;
   }
@@ -230,8 +233,13 @@ void MainMenuScene::switchSideMenu(cocos2d::Node* newMenu) {
   currentSideMenu = newMenu;
 }
 
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 void MainMenuScene::mcSwitchToGame(cocos2d::Ref *pSender, const int menuCode) {
   C6_D2(c6, "here ", menuCode);
+
+  Scene* newScene = AsteroidsScene::create();
+
+  Director::getInstance()->pushScene(newScene);
 }
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
