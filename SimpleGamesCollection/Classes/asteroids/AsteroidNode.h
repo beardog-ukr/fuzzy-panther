@@ -2,8 +2,6 @@
 
 #include "cocos2d.h"
 
-// #include <memory>
-// #include "SixCatsLogger.h"
 #include "SixCatsLoggerLoggable.h"
 
 namespace asteroids {

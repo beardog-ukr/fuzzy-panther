@@ -14,86 +14,7 @@ using namespace std;
 
 static const double pi = acos(-1);
 
-// enum MoveType {
-//   MT_up_right,
-//   MT_down_right,
-//   MT_down_left,
-//   MT_up_left
-// }
-
-// MoveType AsteroidNode::calculateMoveType(const double rotationAngle) {
-//   MoveType result = MT_up_right;
-
-//   if ((rotationAngle>0)&&(rotationAngle<pi/2)) {
-//     result = MT_up_right;
-//   }
-//   else if ((rotationAngle>=pi/2)&&(rotationAngle<pi)) {
-//     result = MT_down_right;
-//   }
-//   else if ((rotationAngle>=pi)&&(rotationAngle<(pi*1.5))) {
-//     result = MT_down_left;
-//   }
-//   else if ((rotationAngle>=(pi*1.5))&&(rotationAngle<(2*pi))) {
-//     result = MT_up_left;
-//   }
-//   else {
-//     C6_D2(c6, "Bad angle value: ", rotationAngle);
-//   }
-
-//   return result;
-// }
-
-// double calculateAlphaFromRotation(const double rotationAngle, shared_ptr<SixCatsLogger> c6) {
-//   double alpha = rotationAngle;
-//   if ((rotationAngle>0)&&(rotationAngle<pi/2)) {
-//     alpha = pi/2 - rotationAngle;
-//   }
-//   else if ((rotationAngle>=pi/2)&&(rotationAngle<pi)) {
-//     alpha = pi - rotationAngle;
-//   }
-//   else if ((rotationAngle>=pi)&&(rotationAngle<(pi*1.5))) {
-//     alpha = rotationAngle -pi;
-//   }
-//   else if ((rotationAngle>=(pi*1.5))&&(rotationAngle<(2*pi))) {
-//     alpha = rotationAngle - (1.5*pi);
-//   }
-//   else {
-//     C6_D2(c6, "Bad angle value: ", rotationAngle);
-//   }
-
-//   return alpha;
-// }
-
-// MoveType AsteroidNode::calculateVerticalDistance() {
-//   double cathetus = 0;
-//   double alpha = rotationAngle;
-
-//   const Vec2 currentPos = getPosition();
-
-//   if ((rotationAngle>0)&&(rotationAngle<pi/2)) {
-//     cathetus  = rightMargin - currentPos.x;
-//     alpha = pi/2 - rotationAngle;
-//   }
-//   else if ((rotationAngle>=pi/2)&&(rotationAngle<pi)) {
-//     cathetus  = rightMargin - currentPos.x;
-//     alpha = pi - rotationAngle;
-//   }
-//   else if ((rotationAngle>=pi)&&(rotationAngle<(pi*1.5))) {
-//     cathetus  = currentPos.x - leftMargin;
-//     alpha = rotationAngle -pi;
-//   }
-//   else if ((rotationAngle>=(pi*1.5))&&(rotationAngle<(2*pi))) {
-//     cathetus  = currentPos.x - leftMargin;
-//     alpha = rotationAngle - (1.5*pi);
-//   }
-//   else {
-//     C6_D2(c6, "Bad angle value: ", rotationAngle);
-//   }
-
-//   double result = cathetus / cos(alpha);
-
-//   return result;
-// }
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 double calculateDistance(const Vec2& one, const Vec2& two) {
   double xDiff = one.x - two.x;
@@ -272,10 +193,6 @@ Vec2 AsteroidNode::calculatePointAupleft(const cocos2d::Vec2& currentPos,
 
 Vec2 AsteroidNode::calculatePointB(const Vec2& currentPos, const double rotationAngle) const {
   Vec2 result;
-  // Vec2 pointB1;
-  // Vec2 pointB2;
-  // double alpha;
-  // double cathetus;
 
   if ((rotationAngle>0)&&(rotationAngle<pi/2)) {
     result = calculatePointAdownleft(currentPos, rotationAngle+pi);
@@ -289,22 +206,6 @@ Vec2 AsteroidNode::calculatePointB(const Vec2& currentPos, const double rotation
   else if ((rotationAngle>=(pi*1.5))&&(rotationAngle<(2*pi))) {
     result = calculatePointAdownright(currentPos, rotationAngle-pi);
   }
-  // alpha = pi/2 - rotationAngle;
-
-  // cathetus = currentPos.y - downMargin;
-  // pointB1.x = currentPos.x - (cathetus/tan(alpha));
-  // pointB1.y = downMargin;
-
-  // pointB2.x = leftMargin;
-  // cathetus = currentPos.x - leftMargin;
-  // pointB2.y = currentPos.y - (cathetus*tan(alpha));
-
-  // if (calculateDistance(currentPos, pointB1) < calculateDistance(currentPos, pointB2)) {
-  //   result = pointB1;
-  // }
-  // else {
-  //   result = pointB2;
-  // }
 
   else {
     C6_D2(c6, "Bad angle value: ", rotationAngle);

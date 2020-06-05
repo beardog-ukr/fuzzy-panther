@@ -25,17 +25,9 @@ protected:
 
   bool initBackground();
   bool initGameNode();
-  // bool initSettingsMenu();
-  // bool initNewGameMenu();
+  bool initKeyboardProcessing();
 
-  // void mcExit(cocos2d::Ref *pSender);
-
-  // cocos2d::Menu* mainMenu;
-
-  // cocos2d::Sprite* settingsMenu; // TODO: implement real menu instead of sprite stub
-  // cocos2d::Menu* newGameMenu;
-  // cocos2d::Node* currentSideMenu;
-  // void switchSideMenu(cocos2d::Node* newMenu);
+  void onKeyPressedScene(cocos2d::EventKeyboard::KeyCode keyCode, cocos2d::Event *);
 
   std::unique_ptr<asteroids::GameManager> gameManager;
 };
