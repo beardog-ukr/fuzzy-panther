@@ -238,7 +238,7 @@ void MainMenuScene::switchSideMenu(cocos2d::Node* newMenu) {
 void MainMenuScene::mcSwitchToGame(cocos2d::Ref *pSender, const int menuCode) {
   C6_D2(c6, "here ", menuCode);
 
-  Scene* newScene = AsteroidsScene::create();
+  Scene* newScene = asteroids::AsteroidsScene::create();
 
   Director::getInstance()->pushScene(newScene);
 }

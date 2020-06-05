@@ -5,29 +5,29 @@
 #include <sstream>
 
 #include "main_menu/BackgroundNode.h"
-#include "AsteroidsGameNode.h"
+// #include "AsteroidsGameNode.h"
+#include "asteroids/GameManager.h"
+#include "asteroids/ZOrderValues.h"
+
 
 USING_NS_CC;
 using namespace std;
 
-// enum MenuCodeGame {
-//   MCG_Asteroids = 10,
-//   MCG_Bird
-// };
-
-// enum MenuCodeMain {
-//   MCM_New_game = 10,
-//   MCM_Settings,
-//   MCM_Exit
-// };
-
-enum z_orders {
-  ZO_Background = 10,
-  ZO_Game_Back,
-  ZO_Game_Items
-};
+using namespace asteroids;
 
 // static const float menuMoveDuration = 1.0;
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+AsteroidsScene::AsteroidsScene() {
+  // ntdh
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+AsteroidsScene::~AsteroidsScene() {
+  C6_D1(c6, "here");
+}
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
@@ -43,23 +43,24 @@ bool AsteroidsScene::init() {
   // currentSideMenu = nullptr;
   // settingsMenu = nullptr;
   // newGameMenu = nullptr;
-  c6 = std::make_shared<SixCatsLogger>(SixCatsLogger::Debug);
+  c6 = make_shared<SixCatsLogger>(SixCatsLogger::Debug);
 
   if (!initBackground()) {
     return false;
   }
 
+  gameManager = make_unique<asteroids::GameManager>();
+  gameManager->setLogger(c6);
+
   if (!initGameNode()) {
     return false;
   }
 
-  // if (!initSettingsMenu()) {
-  //   return false;
-  // }
-
   // if (!initNewGameMenu()) {
   //   return false;
   // }
+
+  gameManager->startGame();
 
   return true;
 }
@@ -76,7 +77,7 @@ bool AsteroidsScene::initBackground() {
 
   backgroundNode->setAnchorPoint(Vec2(0,0));
   backgroundNode->setPosition(0,0);
-  addChild(backgroundNode, ZO_Background);
+  addChild(backgroundNode, ZO_scene_background);
 
   return true;
 }
@@ -84,16 +85,19 @@ bool AsteroidsScene::initBackground() {
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 bool AsteroidsScene::initGameNode() {
-  Size cs = getContentSize();
-
-  AsteroidsGameNode* gameNode = AsteroidsGameNode::create(c6);
+  Node * gameNode = gameManager->prepareGameNode();
   if (gameNode == nullptr) {
     return false;
   }
 
+  const Vec2 backupAP = gameNode->getAnchorPoint();
+
   gameNode->setAnchorPoint(Vec2(0.5,0.5));
+  const Size cs = getContentSize();
   gameNode->setPosition(cs.width/2, cs.height/2);
-  addChild(gameNode, ZO_Game_Back);
+  addChild(gameNode, ZO_game_background);
+
+  gameNode->setAnchorPoint(backupAP);
 
   return true;
 }

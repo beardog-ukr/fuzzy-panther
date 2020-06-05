@@ -1,7 +1,14 @@
 #pragma once
 
+#include <memory>
+
 #include "cocos2d.h"
 #include "SixCatsLoggerLoggable.h"
+
+namespace asteroids {
+
+class GameManager;
+// #include "GameManager.h"
 
 class AsteroidsScene : public cocos2d::Scene,
   virtual public SixCatsLoggerLoggable
@@ -13,6 +20,9 @@ public:
   CREATE_FUNC(AsteroidsScene);
 
 protected:
+  AsteroidsScene();
+  virtual ~AsteroidsScene();
+
   bool initBackground();
   bool initGameNode();
   // bool initSettingsMenu();
@@ -26,6 +36,9 @@ protected:
   // cocos2d::Menu* newGameMenu;
   // cocos2d::Node* currentSideMenu;
   // void switchSideMenu(cocos2d::Node* newMenu);
+
+  std::unique_ptr<asteroids::GameManager> gameManager;
 };
 
+}
 
