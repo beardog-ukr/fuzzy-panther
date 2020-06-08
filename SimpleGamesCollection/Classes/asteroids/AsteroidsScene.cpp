@@ -8,11 +8,15 @@
 #include "asteroids/GameManager.h"
 #include "asteroids/ZOrderValues.h"
 
+// #include "asteroids/AsteroidNode.h"
+
 
 USING_NS_CC;
 using namespace std;
 
 using namespace asteroids;
+
+static const string plistFilename = "asteroids/asteroids.plist";
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
@@ -24,6 +28,15 @@ AsteroidsScene::AsteroidsScene() {
 
 AsteroidsScene::~AsteroidsScene() {
   C6_D1(c6, "here");
+  SpriteFrameCache::getInstance()->removeSpriteFramesFromFile(plistFilename);
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+Scene* AsteroidsScene::createScene() {
+  // printf("%s: here\n", __func__);
+  Scene* result = AsteroidsScene::create();
+  return result;
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -32,11 +45,17 @@ AsteroidsScene::~AsteroidsScene() {
 bool AsteroidsScene::init() {
   //////////////////////////////
   // 1. super init first
-  if ( !Scene::init() ) {
+  if ( !Scene::initWithPhysics() ) {
     return false;
   }
 
+  // getPhysicsWorld()->setDebugDrawMask(PhysicsWorld::DEBUGDRAW_SHAPE);
+
   c6 = make_shared<SixCatsLogger>(SixCatsLogger::Debug);
+
+  if (!initSpriteCache()) {
+    return false;
+  }
 
   if (!initBackground()) {
     return false;
@@ -49,11 +68,21 @@ bool AsteroidsScene::init() {
     return false;
   }
 
+  // if (!initDebugAsteroids()) {
+  //   return false;
+  // }
+
   if (!initKeyboardProcessing()) {
     return false;
   }
 
+  auto contactListener = EventListenerPhysicsContact::create();
+  contactListener->onContactBegin = CC_CALLBACK_1(AsteroidsScene::onContactBegin, this);
+  _eventDispatcher->addEventListenerWithSceneGraphPriority(contactListener, this);
+
   gameManager->startGame();
+
+  // getPhysicsWorld()->setDebugDrawMask(PhysicsWorld::DEBUGDRAW_SHAPE);
 
   return true;
 }
@@ -94,6 +123,16 @@ bool AsteroidsScene::initGameNode() {
   return true;
 }
 
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+// bool AsteroidsScene::initDebugAsteroids() {
+//   AsteroidNode* asteroidNode = AsteroidNode::create(20, AsteroidNode::RT_medium, c6);
+
+//   asteroidNode->setPosition(10,10);
+//   addChild(asteroidNode);
+//   return true;
+// }
+
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 bool AsteroidsScene::initKeyboardProcessing() {
@@ -107,6 +146,19 @@ bool AsteroidsScene::initKeyboardProcessing() {
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
+bool AsteroidsScene::initSpriteCache() {
+  SpriteFrameCache* const sfc = SpriteFrameCache::getInstance();
+
+  sfc->addSpriteFramesWithFile(plistFilename);
+  if (!sfc->isSpriteFramesWithFileLoaded(plistFilename)) {
+    return false;
+  }
+
+  return true;
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
 void AsteroidsScene::onKeyPressedScene(EventKeyboard::KeyCode keyCode, Event *) {
   C6_D3(c6, "Key '", (int)keyCode, "' was pressed");
 
@@ -114,7 +166,10 @@ void AsteroidsScene::onKeyPressedScene(EventKeyboard::KeyCode keyCode, Event *) 
     return;
   }
 
-  if (EventKeyboard::KeyCode::KEY_X == keyCode) {
+  if (EventKeyboard::KeyCode::KEY_BACKSPACE == keyCode) {
+    Director::getInstance()->popScene();
+  }
+  else if (EventKeyboard::KeyCode::KEY_X == keyCode) {
     c6->d(__c6_MN__, "Need to get out.");
 
     // Close the cocos2d-x game scene and quit the application
@@ -124,8 +179,37 @@ void AsteroidsScene::onKeyPressedScene(EventKeyboard::KeyCode keyCode, Event *) 
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
+bool AsteroidsScene::onContactBegin(PhysicsContact& contact) {
+  printf("%s: here\n", __func__);
 
-// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+  return gameManager->processContact(contact);
+
+  // Node* nodeA = contact.getShapeA()->getBody()->getNode();
+  // Node* nodeB = contact.getShapeB()->getBody()->getNode();
+
+  // bool laserAndAsteroid = (nodeA->getTag()==IT_laser) && (nodeB->getTag()==IT_asteroid);
+  // laserAndAsteroid = laserAndAsteroid ||
+  //                    ((nodeA->getTag()==IT_asteroid) && (nodeB->getTag()==IT_laser));
+
+  // if (laserAndAsteroid) {
+  //   //   printf("%s: node A is green ship\n", __func__);
+  //   addSplashAt(nodeA->getPosition(), nodeB->getPosition());
+  //   nodeA->removeFromParentAndCleanup(true);
+  //   nodeB->removeFromParentAndCleanup(true);
+
+
+  //   //   greenShip = nullptr;
+  //   // }
+
+  //   // if ((nodeB->getTag()==IT_green_ship)) {
+  //   //   printf("%s: node B is green ship\n", __func__);
+  //   //   nodeB->removeFromParentAndCleanup(true);
+  //   //   greenShip = nullptr;
+  //   // }
+  // }
+
+  // return true;
+}
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 

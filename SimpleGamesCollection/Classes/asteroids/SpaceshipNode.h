@@ -14,8 +14,11 @@ public:
 
   void setAngle(const double angle);
 
+  void moveForward();
   void rotateClockwice();
   void rotateCounterClockwice();
+
+  double getAngle() const;
 
 protected:
   SpaceshipNode();
@@ -24,6 +27,8 @@ protected:
   void doRotate(const int value);
 
   bool init();
+
+  cocos2d::Vec2 calculateNewForwardPosition();
 
   cocos2d::Sprite* baseSprite;
 };

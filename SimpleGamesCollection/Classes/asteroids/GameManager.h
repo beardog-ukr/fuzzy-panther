@@ -21,12 +21,16 @@ public:
   // returns true if key code was processed, false if it should be processed somewhere else
   bool processKeyCode(const cocos2d::EventKeyboard::KeyCode keyCode);
 
+  bool processContact(cocos2d::PhysicsContact& contact);
+
 protected:
 
   bool initAsteroids();
   bool initGameNode();
   bool initSpaceship();
 
+  void addLaser();
+  void addSplashAt(const cocos2d::Vec2& pointA, const cocos2d::Vec2& pointB);
   void rotateSpaceship(const cocos2d::EventKeyboard::KeyCode keyCode);
 
   cocos2d::Node* gameNode;

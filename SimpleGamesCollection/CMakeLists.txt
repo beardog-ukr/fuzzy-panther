@@ -39,6 +39,7 @@ list(APPEND GAME_SOURCE
      Classes/asteroids/AsteroidNode.cpp
      Classes/asteroids/AsteroidsScene.cpp
      Classes/asteroids/GameManager.cpp
+     Classes/asteroids/LaserNode.cpp
      Classes/asteroids/SpaceshipNode.cpp
      Classes/main_menu/BackgroundNode.cpp
      Classes/main_menu/MainMenuScene.cpp
@@ -48,6 +49,7 @@ list(APPEND GAME_HEADER
      Classes/asteroids/AsteroidNode.h
      Classes/asteroids/AsteroidsScene.h
      Classes/asteroids/GameManager.h
+     Classes/asteroids/LaserNode.h
      Classes/asteroids/SpaceshipNode.h
      Classes/asteroids/ZOrderValues.h
      Classes/main_menu/BackgroundNode.h

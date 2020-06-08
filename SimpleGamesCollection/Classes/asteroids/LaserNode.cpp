@@ -1,7 +1,6 @@
-#include "asteroids/AsteroidNode.h"
+#include "asteroids/LaserNode.h"
 using namespace asteroids;
 #include "asteroids/ZOrderValues.h"
-
 
 #include "SixCatsLogger.h"
 #include "SixCatsLoggerMacro.h"
@@ -14,46 +13,9 @@ using namespace std;
 
 static const double pi = acos(-1);
 
-// static const int categoryMaskAsteroid = 0x02;
-// static const int categoryMaskShip = 0x01;
-
-static const int smallPointsCount = 6;
-static const Vec2 smallPoints[smallPointsCount] = {
-  {.x =   -13, .y = -2  },
-  {.x =   -9, .y =  10  },
-  {.x =   7, .y =   12  },
-  {.x =   15, .y =  2  },
-  {.x =   6, .y =   -11 },
-  {.x =   -4, .y =  -11 }
-};
-
-static const int mediumPointsCount = 6;
-static const Vec2 mediumPoints[mediumPointsCount] = {
-  {.x = -20, .y =  4},
-  {.x = -8, .y =   21},
-  {.x = 18, .y =   19},
-  {.x = 21, .y =   -9},
-  {.x = 1, .y =  -19},
-  {.x = -13, .y =  -14}
-};
-
-static const int bigPointsCount = 8;
-static const Vec2 bigPoints[bigPointsCount] = {
-  {.x =   6, .y =    47  },
-  {.x =   59, .y =    29  },
-  {.x =   45, .y =    -17 },
-  {.x =   -9, .y =    -32 },
-  {.x =   -26, .y =    -48 },
-  {.x =   -53, .y =    -26 },
-  {.x =   -60, .y =    4 },
-  {.x =   -40, .y =    41  }
-};
-
-
-
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-double calculateDistance(const Vec2& one, const Vec2& two) {
+static double calculateDistance(const Vec2& one, const Vec2& two) {
   double xDiff = one.x - two.x;
   double yDiff = one.y - two.y;
   double result = sqrt(xDiff*xDiff + yDiff*yDiff);
@@ -63,9 +25,8 @@ double calculateDistance(const Vec2& one, const Vec2& two) {
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-AsteroidNode::AsteroidNode(const double inAngle, const RockType inType) {
+LaserNode::LaserNode(const double inAngle) {
   basicAngle = inAngle;
-  type = inType;
 
   baseSprite = nullptr;
 
@@ -77,16 +38,16 @@ AsteroidNode::AsteroidNode(const double inAngle, const RockType inType) {
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-AsteroidNode::~AsteroidNode() {
+LaserNode::~LaserNode() {
   C6_D1(c6, "here");
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-Vec2 AsteroidNode::calculatePointA(const Vec2& currentPos, const double rotationAngle) const {
+Vec2 LaserNode::calculatePointA(const Vec2& currentPos, const double rotationAngle) const {
   Vec2 result;
 
-  if ((rotationAngle>0)&&(rotationAngle<pi/2)) {
+  if ((rotationAngle>=0)&&(rotationAngle<pi/2)) {
     result = calculatePointAupright(currentPos, rotationAngle);
   }
   else if ((rotationAngle>=pi/2)&&(rotationAngle<pi)) {
@@ -107,8 +68,8 @@ Vec2 AsteroidNode::calculatePointA(const Vec2& currentPos, const double rotation
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-Vec2 AsteroidNode::calculatePointAupright(const cocos2d::Vec2& currentPos,
-                                          const double rotationAngle) const {
+Vec2 LaserNode::calculatePointAupright(const cocos2d::Vec2& currentPos,
+                                       const double rotationAngle) const {
   Vec2 pointA2;
   double alpha;
   double cathetus;
@@ -138,8 +99,8 @@ Vec2 AsteroidNode::calculatePointAupright(const cocos2d::Vec2& currentPos,
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-Vec2 AsteroidNode::calculatePointAdownright(const cocos2d::Vec2& currentPos,
-                                            const double rotationAngle) const {
+Vec2 LaserNode::calculatePointAdownright(const cocos2d::Vec2& currentPos,
+                                         const double rotationAngle) const {
   Vec2 pointA2;
   double alpha;
   double cathetus;
@@ -169,8 +130,8 @@ Vec2 AsteroidNode::calculatePointAdownright(const cocos2d::Vec2& currentPos,
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-Vec2 AsteroidNode::calculatePointAdownleft(const cocos2d::Vec2& currentPos,
-                                           const double rotationAngle) const {
+Vec2 LaserNode::calculatePointAdownleft(const cocos2d::Vec2& currentPos,
+                                        const double rotationAngle) const {
   Vec2 pointA2;
   double alpha;
   double cathetus;
@@ -200,8 +161,8 @@ Vec2 AsteroidNode::calculatePointAdownleft(const cocos2d::Vec2& currentPos,
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-Vec2 AsteroidNode::calculatePointAupleft(const cocos2d::Vec2& currentPos,
-                                         const double rotationAngle) const {
+Vec2 LaserNode::calculatePointAupleft(const cocos2d::Vec2& currentPos,
+                                      const double rotationAngle) const {
   Vec2 pointA2;
   double alpha;
   double cathetus;
@@ -231,35 +192,9 @@ Vec2 AsteroidNode::calculatePointAupleft(const cocos2d::Vec2& currentPos,
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-Vec2 AsteroidNode::calculatePointB(const Vec2& currentPos, const double rotationAngle) const {
-  Vec2 result;
+LaserNode* LaserNode::create(const double angle, shared_ptr<SixCatsLogger> c6) {
 
-  if ((rotationAngle>0)&&(rotationAngle<pi/2)) {
-    result = calculatePointAdownleft(currentPos, rotationAngle+pi);
-  }
-  else if ((rotationAngle>=pi/2)&&(rotationAngle<pi)) {
-    result = calculatePointAupleft(currentPos, rotationAngle+pi);
-  }
-  else if ((rotationAngle>=pi)&&(rotationAngle<(pi*1.5))) {
-    result = calculatePointAupright(currentPos, rotationAngle-pi);
-  }
-  else if ((rotationAngle>=(pi*1.5))&&(rotationAngle<(2*pi))) {
-    result = calculatePointAdownright(currentPos, rotationAngle-pi);
-  }
-
-  else {
-    C6_D2(c6, "Bad angle value: ", rotationAngle);
-  }
-
-  return result;
-}
-
-// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
-
-AsteroidNode* AsteroidNode::create(const double angle, const RockType type,
-                                   shared_ptr<SixCatsLogger> c6) {
-
-  AsteroidNode *pRet = new(std::nothrow) AsteroidNode(angle,type);
+  LaserNode *pRet = new(std::nothrow) LaserNode(angle);
   if (pRet ==nullptr) {
     return nullptr;
   }
@@ -278,7 +213,7 @@ AsteroidNode* AsteroidNode::create(const double angle, const RockType type,
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-bool AsteroidNode::init() {
+bool LaserNode::init() {
 
   if (!initBaseSprite()) {
     return false;
@@ -288,105 +223,83 @@ bool AsteroidNode::init() {
     return false;
   }
 
+  setRotation(basicAngle);
+
   return true;
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-bool AsteroidNode::initBaseSprite() {
-  const string frameNames[3] = {"rock_brown_small_2.png", "rock_brown_medium_1.png",
-                                "rock_brown_big_2.png"};
-
-  baseSprite = Sprite::createWithSpriteFrameName(frameNames[(int)type]);
+bool LaserNode::initBaseSprite() {
+  const string frameName = "laser_blue_01.png";
+  baseSprite = Sprite::createWithSpriteFrameName(frameName);
   if (baseSprite == nullptr) {
-    C6_C2(c6, "Error while loading: ", frameNames[(int)type]);
+    C6_C2(c6, "Error while loading: ", frameName);
     return false;
   }
 
   // baseSprite->setOpacity(60);
 
-  addChild(baseSprite, ZO_asteroid);
+  addChild(baseSprite, ZO_laser);
 
   return true;
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-bool AsteroidNode::initPhysicsBody() {
+bool LaserNode::initPhysicsBody() {
   if (baseSprite == nullptr) {
     C6_C1(c6, "Bad call");
     return false;
   }
 
-
-  int polygonPointCount = 0;
-  const Vec2*  polygonPointsArr = nullptr;
-  switch(type) {
-  case RT_small:
-    polygonPointCount = smallPointsCount;
-    polygonPointsArr = smallPoints;
-    break;
-  case RT_medium:
-    polygonPointCount = mediumPointsCount;
-    polygonPointsArr = mediumPoints;
-    break;
-  case RT_big:
-    // C6_D1(c6, "called for big");
-    polygonPointCount = bigPointsCount;
-    polygonPointsArr = bigPoints;
-    break;
-
-  default:
-    C6_C1(c6, "Bad call");
-    return false;
-  }
-
-  PhysicsBody* physicsBody = PhysicsBody::createPolygon(polygonPointsArr, polygonPointCount,
-                                                        PhysicsMaterial(0.1f, 1.0f, 0.0f));
+  PhysicsBody* physicsBody = PhysicsBody::createBox(baseSprite->getContentSize(),
+                                                    PhysicsMaterial(0.1f, 1.0f, 0.0f));
   physicsBody->setDynamic(false);
-  physicsBody->setCategoryBitmask(CM_asteroid);
-  physicsBody->setCollisionBitmask(CM_ship);
+  physicsBody->setCategoryBitmask(CM_ship); // note laser uses same category as ships
+  physicsBody->setCollisionBitmask(CM_asteroid);
   physicsBody->setContactTestBitmask(0xFFFFFFFF);
 
   baseSprite->addComponent(physicsBody);
-  baseSprite->setTag(IT_asteroid);
+  baseSprite->setTag(IT_laser);
 
   return true;
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-void AsteroidNode::setAngle(const double rotationAngle) {
+void LaserNode::setAngle(const double rotationAngle) {
   double alpha = (rotationAngle*pi)/180;
 
   const Vec2 currentPos = getPosition();
 
   pointA = calculatePointA(currentPos, alpha);
-  pointB = calculatePointB(currentPos, alpha);
+  // pointB = calculatePointB(currentPos, alpha);
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-void AsteroidNode::start() {
-  setAngle(basicAngle);// calcu;ation is performed hee because only at this point
+void LaserNode::start() {
+  setAngle(basicAngle);// calculation is performed hee because only at this point
   //position of the node is defined
   resetMove();
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-void AsteroidNode::resetMove() {
+void LaserNode::resetMove() {
 
   stopAllActions();
 
   MoveTo* mt = MoveTo::create(6, pointA);
+  RemoveSelf* removeSelf = RemoveSelf::create();
 
-  CallFunc *cf = CallFunc::create([this]() {
-    this->setPosition(this->pointB);
-    this->resetMove();
-  });
+  // CallFunc *cf = CallFunc::create([this]() {
+  //   this->setPosition(this->pointB);
+  //   this->resetMove();
+  // });
 
-  Sequence* seq = Sequence::create(mt, cf, nullptr);
+  Sequence* seq = Sequence::create(mt, removeSelf, nullptr);
   runAction(seq);
 }
 

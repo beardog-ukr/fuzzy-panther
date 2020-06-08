@@ -34,11 +34,15 @@ static const float menuMoveDuration = 1.0;
 
 // on "init" you need to initialize your instance
 bool MainMenuScene::init() {
-  //////////////////////////////
-  // 1. super init first
   if ( !Scene::init() ) {
     return false;
   }
+
+  // if ( !Scene::initWithPhysics() ) {
+  //   return false;
+  // }
+
+  // getPhysicsWorld()->setDebugDrawMask(PhysicsWorld::DEBUGDRAW_SHAPE);
 
   mainMenu = nullptr;
   currentSideMenu = nullptr;
@@ -238,7 +242,7 @@ void MainMenuScene::switchSideMenu(cocos2d::Node* newMenu) {
 void MainMenuScene::mcSwitchToGame(cocos2d::Ref *pSender, const int menuCode) {
   C6_D2(c6, "here ", menuCode);
 
-  Scene* newScene = asteroids::AsteroidsScene::create();
+  Scene* newScene = asteroids::AsteroidsScene::createScene();
 
   Director::getInstance()->pushScene(newScene);
 }
