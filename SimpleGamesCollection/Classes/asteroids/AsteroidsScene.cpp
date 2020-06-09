@@ -68,10 +68,6 @@ bool AsteroidsScene::init() {
     return false;
   }
 
-  // if (!initDebugAsteroids()) {
-  //   return false;
-  // }
-
   if (!initKeyboardProcessing()) {
     return false;
   }
@@ -123,16 +119,6 @@ bool AsteroidsScene::initGameNode() {
   return true;
 }
 
-// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
-
-// bool AsteroidsScene::initDebugAsteroids() {
-//   AsteroidNode* asteroidNode = AsteroidNode::create(20, AsteroidNode::RT_medium, c6);
-
-//   asteroidNode->setPosition(10,10);
-//   addChild(asteroidNode);
-//   return true;
-// }
-
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 bool AsteroidsScene::initKeyboardProcessing() {
@@ -183,32 +169,6 @@ bool AsteroidsScene::onContactBegin(PhysicsContact& contact) {
   printf("%s: here\n", __func__);
 
   return gameManager->processContact(contact);
-
-  // Node* nodeA = contact.getShapeA()->getBody()->getNode();
-  // Node* nodeB = contact.getShapeB()->getBody()->getNode();
-
-  // bool laserAndAsteroid = (nodeA->getTag()==IT_laser) && (nodeB->getTag()==IT_asteroid);
-  // laserAndAsteroid = laserAndAsteroid ||
-  //                    ((nodeA->getTag()==IT_asteroid) && (nodeB->getTag()==IT_laser));
-
-  // if (laserAndAsteroid) {
-  //   //   printf("%s: node A is green ship\n", __func__);
-  //   addSplashAt(nodeA->getPosition(), nodeB->getPosition());
-  //   nodeA->removeFromParentAndCleanup(true);
-  //   nodeB->removeFromParentAndCleanup(true);
-
-
-  //   //   greenShip = nullptr;
-  //   // }
-
-  //   // if ((nodeB->getTag()==IT_green_ship)) {
-  //   //   printf("%s: node B is green ship\n", __func__);
-  //   //   nodeB->removeFromParentAndCleanup(true);
-  //   //   greenShip = nullptr;
-  //   // }
-  // }
-
-  // return true;
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .

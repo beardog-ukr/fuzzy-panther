@@ -33,6 +33,8 @@ protected:
   void addSplashAt(const cocos2d::Vec2& pointA, const cocos2d::Vec2& pointB);
   void rotateSpaceship(const cocos2d::EventKeyboard::KeyCode keyCode);
 
+  void processGameOver();
+
   cocos2d::Node* gameNode;
   AsteroidNode* asteroidNode;
   SpaceshipNode* spaceshipNode;

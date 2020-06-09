@@ -13,9 +13,13 @@ public:
   CREATE_FUNC(MainMenuScene);
 
 protected:
+  MainMenuScene();
+  virtual ~MainMenuScene();
+
   bool initBackground();
   bool initMainMenu();
   bool initSettingsMenu();
+  bool initSpriteCache();
   bool initNewGameMenu();
 
   void mcExit(cocos2d::Ref *pSender);

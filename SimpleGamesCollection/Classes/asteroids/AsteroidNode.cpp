@@ -303,6 +303,8 @@ bool AsteroidNode::initBaseSprite() {
     return false;
   }
 
+  baseSprite->setTag(IT_asteroid);
+
   // baseSprite->setOpacity(60);
 
   addChild(baseSprite, ZO_asteroid);
@@ -345,11 +347,11 @@ bool AsteroidNode::initPhysicsBody() {
                                                         PhysicsMaterial(0.1f, 1.0f, 0.0f));
   physicsBody->setDynamic(false);
   physicsBody->setCategoryBitmask(CM_asteroid);
-  physicsBody->setCollisionBitmask(CM_ship);
+  physicsBody->setCollisionBitmask(CM_ship | CM_laser);
   physicsBody->setContactTestBitmask(0xFFFFFFFF);
 
   baseSprite->addComponent(physicsBody);
-  baseSprite->setTag(IT_asteroid);
+  // baseSprite->setTag(IT_asteroid);
 
   return true;
 }
