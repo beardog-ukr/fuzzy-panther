@@ -9,17 +9,17 @@ using namespace std;
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-BackgroundNode* BackgroundNode::create(const cocos2d::Size& expectedSize,
+BackgroundNode* BackgroundNode::create(const Size& expectedSize, const string& filename,
                                        shared_ptr<SixCatsLogger> c6) {
 
-  BackgroundNode *pRet = new(std::nothrow) BackgroundNode(expectedSize);
+  BackgroundNode *pRet = new(std::nothrow) BackgroundNode();
   if (pRet ==nullptr) {
     return nullptr;
   }
 
   pRet->setLogger(c6);
 
-  if (!pRet->init()) {
+  if (!pRet->init(expectedSize, filename)) {
     delete pRet;
     pRet = nullptr;
     return nullptr;
@@ -31,8 +31,8 @@ BackgroundNode* BackgroundNode::create(const cocos2d::Size& expectedSize,
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-BackgroundNode::BackgroundNode(const cocos2d::Size& in_expectedSize) {
-  expectedSize = in_expectedSize;
+BackgroundNode::BackgroundNode() {
+  // ntdh
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -43,10 +43,7 @@ BackgroundNode::~BackgroundNode() {
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-bool BackgroundNode::init() {
-
-  const char filename[] = "menu/seamless-1657428_640.jpg";
-
+bool BackgroundNode::init(const Size& expectedSize, const string& filename) {
   Sprite* baseSprite = Sprite::create(filename);
   if (baseSprite == nullptr) {
     C6_C2(c6, "Error while loading: ", filename);

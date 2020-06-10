@@ -29,14 +29,31 @@ if(APPLE OR WINDOWS)
     cocos_mark_multi_resources(common_res_files RES_TO "Resources" FOLDERS ${GAME_RES_FOLDER})
 endif()
 
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_EXTENSIONS OFF)
+
 # add cross-platforms source files and header files 
 list(APPEND GAME_SOURCE
      Classes/AppDelegate.cpp
+     Classes/asteroids/AsteroidNode.cpp
+     Classes/asteroids/AsteroidsScene.cpp
+     Classes/asteroids/GameManager.cpp
+     Classes/asteroids/GameEndScene.cpp
+     Classes/asteroids/LaserNode.cpp
+     Classes/asteroids/SpaceshipNode.cpp
      Classes/main_menu/BackgroundNode.cpp
      Classes/main_menu/MainMenuScene.cpp
      )
 list(APPEND GAME_HEADER
      Classes/AppDelegate.h
+     Classes/asteroids/AsteroidNode.h
+     Classes/asteroids/AsteroidsScene.h
+     Classes/asteroids/GameManager.h
+     Classes/asteroids/GameEndScene.h
+     Classes/asteroids/LaserNode.h
+     Classes/asteroids/SpaceshipNode.h
+     Classes/asteroids/ZOrderValues.h
      Classes/main_menu/BackgroundNode.h
      Classes/main_menu/MainMenuScene.h
      )

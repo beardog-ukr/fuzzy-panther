@@ -1,5 +1,8 @@
 #include "MainMenuScene.h"
 
+#include "asteroids/AsteroidsScene.h"
+#include "asteroids/GameEndScene.h"
+
 #include "SixCatsLogger.h"
 #include "SixCatsLoggerMacro.h"
 #include <sstream>
@@ -28,12 +31,26 @@ enum z_orders {
 
 static const float menuMoveDuration = 1.0;
 
+static const string plistFilename = "menu/menu.plist";
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+MainMenuScene::MainMenuScene() {
+  //
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+MainMenuScene::~MainMenuScene() {
+  //
+  C6_D1(c6, "here");
+  SpriteFrameCache::getInstance()->removeSpriteFramesFromFile(plistFilename);
+}
+
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 // on "init" you need to initialize your instance
 bool MainMenuScene::init() {
-  //////////////////////////////
-  // 1. super init first
   if ( !Scene::init() ) {
     return false;
   }
@@ -43,6 +60,10 @@ bool MainMenuScene::init() {
   settingsMenu = nullptr;
   newGameMenu = nullptr;
   c6 = std::make_shared<SixCatsLogger>(SixCatsLogger::Debug);
+
+  if (!initSpriteCache()) {
+    return false;
+  }
 
   if (!initBackground()) {
     return false;
@@ -66,8 +87,9 @@ bool MainMenuScene::init() {
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 bool MainMenuScene::initBackground() {
-  BackgroundNode* backgroundNode = BackgroundNode::create(getContentSize(), c6);
+  const string filename = "menu/seamless-1657428_640.jpg";
 
+  BackgroundNode* backgroundNode = BackgroundNode::create(getContentSize(), filename, c6);
   if (backgroundNode == nullptr) {
     return false;
   }
@@ -82,6 +104,8 @@ bool MainMenuScene::initBackground() {
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 bool MainMenuScene::initMainMenu() {
+  SpriteFrameCache* sfc = SpriteFrameCache::getInstance();
+
   Menu* menu = Menu::create();
 
   const int itemsCount = 3;
@@ -92,8 +116,13 @@ bool MainMenuScene::initMainMenu() {
   };
 
   for (int i = 0; i< itemsCount; i++) {
-    MenuItemImage* item = MenuItemImage::create(
-      "menu/panel_Example2.png", "menu/panel_Example1.png", mcbs[i]);
+    MenuItemImage* item = MenuItemImage::create();
+    item->setNormalSpriteFrame(sfc->getSpriteFrameByName("menu_panel_main.png"));
+    item->setSelectedSpriteFrame(sfc->getSpriteFrameByName("menu_panel_sec.png"));
+    item->setCallback(mcbs[i]);
+
+    // item->
+    // "menu/panel_Example2.png", "menu/panel_Example1.png", mcbs[i]);
 
     Label* label = Label::createWithTTF(captions[i], "fonts/Marker Felt.ttf", 32);
     label->setTextColor(Color4B(160,82,45,255));
@@ -120,6 +149,7 @@ bool MainMenuScene::initMainMenu() {
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 bool MainMenuScene::initNewGameMenu() {
+  SpriteFrameCache* sfc = SpriteFrameCache::getInstance();
   Menu* menu = Menu::create();
   const Size cs = getContentSize();
   menu->setContentSize(Size(cs.width/2, cs.height));
@@ -139,8 +169,11 @@ bool MainMenuScene::initNewGameMenu() {
   };
 
   for (int i = 0; i< itemsCount; i++) {
-    MenuItemImage* item = MenuItemImage::create(
-      "menu/panel_Example2.png", "menu/panel_Example1.png", mcbs[i]);
+    MenuItemImage* item = MenuItemImage::create();
+    item->setNormalSpriteFrame(sfc->getSpriteFrameByName("menu_panel_main.png"));
+    item->setSelectedSpriteFrame(sfc->getSpriteFrameByName("menu_panel_sec.png"));
+    item->setCallback(mcbs[i]);
+    // "menu/panel_Example2.png", "menu/panel_Example1.png", mcbs[i]);
 
     Label* label = Label::createWithTTF(captions[i], "fonts/Marker Felt.ttf", 32);
     label->setTextColor(Color4B(160,82,45,255));
@@ -170,7 +203,7 @@ bool MainMenuScene::initSettingsMenu() {
 
   Sprite* sprite = Sprite::create(filename);
   if (sprite == nullptr) {
-    C6_C2(c6, "Error while loading: ", filename);
+    C6_C2(c6, "Error while loading file : ", filename);
     return false;
   }
 
@@ -180,6 +213,20 @@ bool MainMenuScene::initSettingsMenu() {
   settingsMenu->setPosition(Vec2(cs.width-cs.width/4, cs.height + cs.height/2));
 
   addChild(settingsMenu, ZO_Side_Menu);
+
+  return true;
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+bool MainMenuScene::initSpriteCache() {
+  SpriteFrameCache* const sfc = SpriteFrameCache::getInstance();
+
+  sfc->addSpriteFramesWithFile(plistFilename);
+  if (!sfc->isSpriteFramesWithFileLoaded(plistFilename)) {
+    C6_C2(c6, "Error while loading: ", plistFilename);
+    return false;
+  }
 
   return true;
 }
@@ -230,8 +277,29 @@ void MainMenuScene::switchSideMenu(cocos2d::Node* newMenu) {
   currentSideMenu = newMenu;
 }
 
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 void MainMenuScene::mcSwitchToGame(cocos2d::Ref *pSender, const int menuCode) {
   C6_D2(c6, "here ", menuCode);
+
+
+
+  Scene* newScene = nullptr;
+  if (menuCode == MCG_Asteroids) {
+    newScene = asteroids::AsteroidsScene::createScene();
+  }
+  else if (menuCode == MCG_Bird) {
+    newScene = asteroids::GameEndScene::createScene(true, c6);
+  }
+  else {
+    C6_C2(c6, "Bad Call ", menuCode);
+  }
+
+  if (newScene!= nullptr) {
+    Director::getInstance()->pushScene(newScene);
+  }
+  else {
+    C6_C1(c6, "Failed to create new scene");
+  }
 }
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
