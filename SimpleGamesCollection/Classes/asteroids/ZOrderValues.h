@@ -14,7 +14,11 @@ enum ZOrderValues {
 
   ZO_laser = 40,
 
-  ZO_ss = 50
+  ZO_ss = 50,
+
+  ZO_scene_border_corner = 60,
+  ZO_scene_border_frame,
+  ZO_scene_border_center
 };
 
 enum CategoryMasks {

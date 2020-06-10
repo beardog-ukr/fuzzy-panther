@@ -26,11 +26,14 @@ protected:
 
   // void addSplashAt(const cocos2d::Vec2& pointA, const cocos2d::Vec2& pointB);
 
-  bool initBackground();
-  bool initGameNode();
+  bool initGameNodeBackground(const cocos2d::Size& gameNodeSize);
+  cocos2d::Node* initGameNode();
   bool initKeyboardProcessing();
   bool initSpriteCache();
-  // bool initDebugAsteroids();
+
+  bool addBorderCenters(const cocos2d::Size& gameNodeSize);
+  bool addBorderCorners(const cocos2d::Size& gameNodeSize);
+  bool addBorderFrames(const cocos2d::Size& gameNodeSize);
 
   bool onContactBegin(cocos2d::PhysicsContact& contact);
   void onKeyPressedScene(cocos2d::EventKeyboard::KeyCode keyCode, cocos2d::Event *);

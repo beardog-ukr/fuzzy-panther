@@ -4,12 +4,8 @@
 #include "SixCatsLoggerMacro.h"
 #include <sstream>
 
-#include "main_menu/BackgroundNode.h"
 #include "asteroids/GameManager.h"
 #include "asteroids/ZOrderValues.h"
-
-// #include "asteroids/AsteroidNode.h"
-
 
 USING_NS_CC;
 using namespace std;
@@ -57,14 +53,15 @@ bool AsteroidsScene::init() {
     return false;
   }
 
-  if (!initBackground()) {
-    return false;
-  }
-
   gameManager = make_unique<asteroids::GameManager>();
   gameManager->setLogger(c6);
 
-  if (!initGameNode()) {
+  Node* gameNode = initGameNode();
+  if (gameNode == nullptr) {
+    return false;
+  }
+
+  if (!initGameNodeBackground(gameNode->getContentSize())) {
     return false;
   }
 
@@ -78,33 +75,285 @@ bool AsteroidsScene::init() {
 
   gameManager->startGame();
 
-  // getPhysicsWorld()->setDebugDrawMask(PhysicsWorld::DEBUGDRAW_SHAPE);
-
   return true;
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-bool AsteroidsScene::initBackground() {
-  const string filename = "menu/seamless-1657428_640.jpg";
-  BackgroundNode* backgroundNode = BackgroundNode::create(getContentSize(), filename, c6);
-  if (backgroundNode == nullptr) {
+bool AsteroidsScene::initGameNodeBackground(const cocos2d::Size& gameNodeSize) {
+
+
+  if (!addBorderCorners(gameNodeSize)) {
     return false;
   }
 
-  backgroundNode->setAnchorPoint(Vec2(0,0));
-  backgroundNode->setPosition(0,0);
-  addChild(backgroundNode, ZO_scene_background);
+  if (!addBorderFrames(gameNodeSize)) {
+    return false;
+  }
+
+  if (!addBorderCenters(gameNodeSize)) {
+    return false;
+  }
 
   return true;
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-bool AsteroidsScene::initGameNode() {
+bool AsteroidsScene::addBorderCenters(const cocos2d::Size& gameNodeSize) {
+  Vec2 aps[4] = {
+    {.x = 0.5, .y = 0}, //up
+    {.x = 0.5, .y = 1}, //down
+    {.x = 1, .y = 0.5}, // left
+    {.x = 0, .y = 0.5} // right
+  };
+
+  const Size cs = getContentSize();
+  const float halfSceneWidth = cs.width/2;
+  const float halfSceneHeight = cs.height/2;
+  const float halfGNWidth = gameNodeSize.width/2;
+  const float halfGNHeight = gameNodeSize.height/2;
+  Vec2 positions[4] = {
+    {.x = halfSceneWidth, .y = halfSceneHeight+halfGNHeight}, //up
+    {.x = halfSceneWidth, .y = halfSceneHeight-halfGNHeight}, //down
+    {.x = halfSceneWidth - halfGNWidth, .y = halfSceneHeight}, //left
+    {.x = halfSceneWidth + halfGNWidth, .y = halfSceneHeight}, //right
+  };
+
+  const char filename[] = "asteroids/border_center.png";
+
+  for (int i = 0; i<4; i++) {
+    Sprite* sprite = Sprite::create(filename);
+    if (sprite == nullptr) {
+      C6_C2(c6, "Failed to load: ", filename);
+      return false;
+    }
+
+    sprite->setAnchorPoint(aps[i]);
+    sprite->setPosition(positions[i]);
+
+    addChild(sprite, ZO_scene_border_center);
+  }
+
+  return true;
+}
+
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+bool AsteroidsScene::addBorderCorners(const cocos2d::Size& gameNodeSize) {
+  Vec2 aps[4] = {
+    {.x = 1, .y = 0}, //up left
+    {.x = 0, .y = 0}, //up right
+    {.x = 1, .y = 1}, //down left
+    {.x = 0, .y = 1} //down right
+  };
+
+  const Size cs = getContentSize();
+  const float halfSceneWidth = cs.width/2;
+  const float halfSceneHeight = cs.height/2;
+  const float halfGNWidth = gameNodeSize.width/2;
+  const float halfGNHeight = gameNodeSize.height/2;
+  Vec2 positions[4] = {
+    {.x = halfSceneWidth - halfGNWidth, .y = halfSceneHeight+halfGNHeight}, //up left
+    {.x = halfSceneWidth + halfGNWidth, .y = halfSceneHeight+halfGNHeight}, //up right
+    {.x = halfSceneWidth - halfGNWidth, .y = halfSceneHeight-halfGNHeight}, //down left
+    {.x = halfSceneWidth + halfGNWidth, .y = halfSceneHeight-halfGNHeight}, //down right
+  };
+
+  const char filename[] = "asteroids/border_corner.png";
+
+  for (int i = 0; i<4; i++) {
+    Sprite* sprite = Sprite::create(filename);
+    if (sprite == nullptr) {
+      C6_C2(c6, "Failed to load: ", filename);
+      return false;
+    }
+
+    sprite->setAnchorPoint(aps[i]);
+    sprite->setPosition(positions[i]);
+
+    addChild(sprite, ZO_scene_border_corner);
+  }
+
+  return true;
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+bool AsteroidsScene::addBorderFrames(const cocos2d::Size& gameNodeSize) {
+  const Size cs = getContentSize();
+  const float halfSceneWidth = cs.width/2;
+  const float halfSceneHeight = cs.height/2;
+  const float halfGNWidth = gameNodeSize.width/2;
+  const float halfGNHeight = gameNodeSize.height/2;
+
+  const char filenameH[] = "asteroids/border_frame_horizontal.png";
+  const char filenameV[] = "asteroids/border_frame_vertical.png";
+
+  // Vec2 nextPos;
+  float stopPos;
+  float acc;
+
+  //up left to right
+  stopPos = halfSceneWidth;
+  acc = halfSceneWidth - halfGNWidth;
+  while (acc < stopPos) {
+    Sprite* sprite = Sprite::create(filenameH);
+    if (sprite == nullptr) {
+      C6_C2(c6, "Failed to load: ", filenameH);
+      return false;
+    }
+
+    sprite->setAnchorPoint({.x = 0, .y = 0});
+    sprite->setPosition({.x = acc, .y = halfSceneHeight+halfGNHeight});
+
+    acc = acc + sprite->getContentSize().width;
+
+    addChild(sprite, ZO_scene_border_frame);
+  }
+
+  // const char filename2[] = "asteroids/border_center.png";
+
+  //up right to left
+  stopPos = halfSceneWidth;
+  acc = halfSceneWidth + halfGNWidth;
+  while (acc > stopPos) {
+    Sprite* sprite = Sprite::create(filenameH);
+    if (sprite == nullptr) {
+      C6_C2(c6, "Failed to load: ", filenameH);
+      return false;
+    }
+
+    sprite->setAnchorPoint({.x = 1, .y = 0});
+    sprite->setPosition({.x = acc, .y = halfSceneHeight+halfGNHeight});
+
+    acc = acc - sprite->getContentSize().width;
+
+    addChild(sprite, ZO_scene_border_frame);
+  }
+
+
+  ////////////////////
+  //down left to right
+  stopPos = halfSceneWidth;
+  acc = halfSceneWidth - halfGNWidth;
+  while (acc < stopPos) {
+    Sprite* sprite = Sprite::create(filenameH);
+    if (sprite == nullptr) {
+      C6_C2(c6, "Failed to load: ", filenameH);
+      return false;
+    }
+
+    sprite->setAnchorPoint({.x = 0, .y = 1});
+    sprite->setPosition({.x = acc, .y = halfSceneHeight-halfGNHeight});
+
+    acc = acc + sprite->getContentSize().width;
+
+    addChild(sprite, ZO_scene_border_frame);
+  }
+
+  //down right to left
+  stopPos = halfSceneWidth;
+  acc = halfSceneWidth + halfGNWidth;
+  while (acc > stopPos) {
+    Sprite* sprite = Sprite::create(filenameH);
+    if (sprite == nullptr) {
+      C6_C2(c6, "Failed to load: ", filenameH);
+      return false;
+    }
+
+    sprite->setAnchorPoint({.x = 1, .y = 1});
+    sprite->setPosition({.x = acc, .y = halfSceneHeight-halfGNHeight});
+
+    acc = acc - sprite->getContentSize().width;
+
+    addChild(sprite, ZO_scene_border_frame);
+  }
+
+  //left : bottom to up
+  stopPos = halfSceneHeight;
+  acc = halfSceneHeight - halfGNHeight;
+  while (acc < stopPos) {
+    Sprite* sprite = Sprite::create(filenameV);
+    if (sprite == nullptr) {
+      C6_C2(c6, "Failed to load: ", filenameV);
+      return false;
+    }
+
+    sprite->setAnchorPoint({.x = 1, .y = 0});
+    sprite->setPosition({.x = halfSceneWidth - halfGNWidth, .y = acc});
+
+    acc = acc + sprite->getContentSize().height;
+
+    addChild(sprite, ZO_scene_border_frame);
+  }
+
+  //left: up to bottom
+  stopPos = halfSceneHeight;
+  acc = halfSceneHeight + halfGNHeight;
+  while (acc > stopPos) {
+    Sprite* sprite = Sprite::create(filenameV);
+    if (sprite == nullptr) {
+      C6_C2(c6, "Failed to load: ", filenameV);
+      return false;
+    }
+
+    sprite->setAnchorPoint({.x = 1, .y = 1});
+    sprite->setPosition({.x = halfSceneWidth - halfGNWidth, .y = acc});
+
+    acc = acc - sprite->getContentSize().height;
+
+    addChild(sprite, ZO_scene_border_frame);
+  }
+
+  //right : bottom to up
+  stopPos = halfSceneHeight;
+  acc = halfSceneHeight - halfGNHeight;
+  while (acc < stopPos) {
+    Sprite* sprite = Sprite::create(filenameV);
+    if (sprite == nullptr) {
+      C6_C2(c6, "Failed to load: ", filenameV);
+      return false;
+    }
+
+    sprite->setAnchorPoint({.x = 0, .y = 0});
+    sprite->setPosition({.x = halfSceneWidth + halfGNWidth, .y = acc});
+
+    acc = acc + sprite->getContentSize().height;
+
+    addChild(sprite, ZO_scene_border_frame);
+  }
+
+
+  //right : up to bottom
+  stopPos = halfSceneHeight;
+  acc = halfSceneHeight + halfGNHeight;
+  while (acc > stopPos) {
+    Sprite* sprite = Sprite::create(filenameV);
+    if (sprite == nullptr) {
+      C6_C2(c6, "Failed to load: ", filenameV);
+      return false;
+    }
+
+    sprite->setAnchorPoint({.x = 0, .y = 1});
+    sprite->setPosition({.x = halfSceneWidth + halfGNWidth, .y = acc});
+
+    acc = acc - sprite->getContentSize().height;
+
+    addChild(sprite, ZO_scene_border_frame);
+  }
+
+
+  return true;
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+Node* AsteroidsScene::initGameNode() {
   Node * gameNode = gameManager->prepareGameNode();
   if (gameNode == nullptr) {
-    return false;
+    return nullptr;
   }
 
   const Vec2 backupAP = gameNode->getAnchorPoint();
@@ -116,7 +365,7 @@ bool AsteroidsScene::initGameNode() {
 
   gameNode->setAnchorPoint(backupAP);
 
-  return true;
+  return gameNode;
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
