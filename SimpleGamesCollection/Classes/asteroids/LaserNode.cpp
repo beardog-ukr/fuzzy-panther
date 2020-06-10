@@ -13,6 +13,8 @@ using namespace std;
 
 static const double pi = acos(-1);
 
+const double laserSpeed = 3.0;
+
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 static double calculateDistance(const Vec2& one, const Vec2& two) {
@@ -274,7 +276,6 @@ void LaserNode::setAngle(const double rotationAngle) {
   const Vec2 currentPos = getPosition();
 
   pointA = calculatePointA(currentPos, alpha);
-  // pointB = calculatePointB(currentPos, alpha);
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -291,13 +292,8 @@ void LaserNode::resetMove() {
 
   stopAllActions();
 
-  MoveTo* mt = MoveTo::create(6, pointA);
+  MoveTo* mt = MoveTo::create(laserSpeed, pointA);
   RemoveSelf* removeSelf = RemoveSelf::create();
-
-  // CallFunc *cf = CallFunc::create([this]() {
-  //   this->setPosition(this->pointB);
-  //   this->resetMove();
-  // });
 
   Sequence* seq = Sequence::create(mt, removeSelf, nullptr);
   runAction(seq);

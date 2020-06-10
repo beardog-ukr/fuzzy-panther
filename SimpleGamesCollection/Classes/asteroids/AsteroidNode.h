@@ -5,20 +5,21 @@
 #include "SixCatsLoggerLoggable.h"
 
 namespace asteroids {
+enum RockType : unsigned int;
 
 class AsteroidNode : public cocos2d::Node,
   virtual public SixCatsLoggerLoggable
 {
 public:
-  enum RockType {
-    RT_small = 0,
-    RT_medium,
-    RT_big
-  };
   static AsteroidNode* create(const double angle, const RockType type,
                               std::shared_ptr<SixCatsLogger> c6);
 
   void start();
+
+  double getAngle() const;
+  RockType getType() const;
+
+  std::string makeName(const std::string& baseName);
 
 protected:
   AsteroidNode(const double angle, const RockType type);
@@ -57,6 +58,9 @@ protected:
   double rightMargin;
 
   cocos2d::Sprite* baseSprite;
+
+  static int idGenerator;
+  static std::string makeBaseName();
 };
 
 }

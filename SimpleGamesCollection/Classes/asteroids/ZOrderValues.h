@@ -29,4 +29,10 @@ enum ItemsTags {
   IT_laser
 };
 
+enum RockType : unsigned int {
+  RT_small = 0,
+  RT_medium,
+  RT_big
+};
+
 }

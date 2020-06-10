@@ -1,11 +1,14 @@
 #pragma once
 
+#include <map>
+
 #include "cocos2d.h"
 #include "SixCatsLoggerLoggable.h"
 
 namespace asteroids {
 
 class AsteroidNode;
+enum RockType : unsigned int;
 class SpaceshipNode;
 
 class GameManager final : virtual public SixCatsLoggerLoggable {
@@ -33,10 +36,13 @@ protected:
   void addSplashAt(const cocos2d::Vec2& pointA, const cocos2d::Vec2& pointB);
   void rotateSpaceship(const cocos2d::EventKeyboard::KeyCode keyCode);
 
-  void processGameOver();
+  void processGameOver(const bool victory);
+  void processLaserVsAsteroid(cocos2d::Node*const laserNode, cocos2d::Node*const asteroidNode );
+  void addTwoAsteroids(const double currentAngle, const cocos2d::Vec2& position,
+                       const RockType type);
 
   cocos2d::Node* gameNode;
-  AsteroidNode* asteroidNode;
+  std::map <std::string, AsteroidNode*> asteroidNodes;
   SpaceshipNode* spaceshipNode;
 };
 

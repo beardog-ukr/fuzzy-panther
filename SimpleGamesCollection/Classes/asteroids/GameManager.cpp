@@ -73,17 +73,41 @@ void GameManager::addSplashAt(const Vec2& pointA, const Vec2& pointB) {
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
+void GameManager::addTwoAsteroids(const double currentAngle, const cocos2d::Vec2& position,
+                                  const RockType type) {
+  double newAngleGenerator = currentAngle -10;
+
+  for (int i = 0; i<2; i++) {
+    AsteroidNode* asteroidNode = AsteroidNode::create(newAngleGenerator, type, c6);
+    newAngleGenerator += 20;
+    asteroidNode->setPosition(position.x, position.y);
+    gameNode->addChild(asteroidNode,  ZO_asteroid);
+    asteroidNode->start();
+
+    asteroidNodes.insert({asteroidNode->getName(), asteroidNode});
+  }
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
 bool GameManager::initAsteroids() {
-  asteroidNode = AsteroidNode::create(20, AsteroidNode::RT_medium, c6);
+  asteroidNodes.clear();
 
-  asteroidNode->setPosition(50,250);
-  gameNode->addChild(asteroidNode,  ZO_asteroid);
-  asteroidNode->start();
+  const int initialCount = 2;
+  Vec2 points[initialCount] = {
+    {.x = 400, .y = 250}, {.x = 500, .y = 150}
+  };
 
-  asteroidNode = AsteroidNode::create(20, AsteroidNode::RT_medium, c6);
-  asteroidNode->setPosition(500,250);
-  gameNode->addChild(asteroidNode,  ZO_asteroid);
-  asteroidNode->start();
+  const RockType types[initialCount] = {RT_big, RT_medium};
+
+  for (int i = 0; i<initialCount; i++) {
+    AsteroidNode* asteroidNode = AsteroidNode::create(20, types[i], c6);
+    asteroidNode->setPosition(points[i].x, points[i].y);
+    gameNode->addChild(asteroidNode,  ZO_asteroid);
+    asteroidNode->start();
+
+    asteroidNodes.insert({asteroidNode->getName(), asteroidNode});
+  }
 
   return true;
 }
@@ -194,8 +218,11 @@ bool GameManager::processContact(PhysicsContact& contact) {
 
     break;
   case IT_asteroid:
+    if (asteroidAgent!=nullptr) {
+      C6_D1(c6, "Both are asteroids");
+    }
     asteroidAgent = nodeB;
-    C6_D1(c6, "Node B is asteroid");
+
     break;
   case IT_ship:
     shipAgent = nodeB;
@@ -205,7 +232,7 @@ bool GameManager::processContact(PhysicsContact& contact) {
     return true;
   }
 
-  if (laserAgent == nullptr) {
+  if ((shipAgent != nullptr)&&(asteroidAgent!= nullptr)) {
     //ship vs asteroid, game over
     C6_I1(c6, "Game Over");
 
@@ -220,21 +247,23 @@ bool GameManager::processContact(PhysicsContact& contact) {
     asteroidAgent->runAction(FadeOut::create(splashDelay));
 
     CallFunc *cf = CallFunc::create([this]() {
-      this->processGameOver();
+      this->processGameOver(false);
     });
 
     Sequence* seq = Sequence::create(DelayTime::create(splashDelay*1.1), cf, nullptr);
     gameNode->runAction(seq);
   }
-  else if (shipAgent == nullptr) {
+  else if ((laserAgent != nullptr)&&(asteroidAgent!= nullptr)) {
     //laser vs asteroid
-    //remove both
+
     Node* laserParent = laserAgent->getParent();
     Node* asteroidParent = asteroidAgent->getParent();
 
-    addSplashAt(laserParent->getPosition(), asteroidParent->getPosition());
-    laserAgent->removeFromParentAndCleanup(true);
-    asteroidAgent->removeFromParentAndCleanup(true);
+    CallFunc *cf = CallFunc::create([this, laserParent, asteroidParent]() {
+      processLaserVsAsteroid(laserParent, asteroidParent);
+    });
+    Sequence* seq = Sequence::create(DelayTime::create(0.1), cf, nullptr);
+    gameNode->runAction(seq);
   }
 
   return true;
@@ -242,22 +271,17 @@ bool GameManager::processContact(PhysicsContact& contact) {
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-void GameManager::processGameOver() {
+void GameManager::processGameOver(const bool victory) {
   C6_D1(c6, "here");
 
   gameNode->removeAllChildren();
-
-  // asteroidNode->removeFromParentAndCleanup(true);
-  // asteroidNode = nullptr;
-  // spaceshipNode->removeFromParentAndCleanup(true);
-  // spaceshipNode = nullptr;
 
   initAsteroids();
   initSpaceship();
 
   startGame();
 
-  Scene* gameEndScene = GameEndScene::createScene(false, c6);
+  Scene* gameEndScene = GameEndScene::createScene(victory, c6);
   Director::getInstance()->pushScene(gameEndScene);
 }
 
@@ -286,7 +310,31 @@ bool GameManager::processKeyCode(const EventKeyboard::KeyCode keyCode) {
   return false;
 }
 
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
+void GameManager::processLaserVsAsteroid(Node*const laserNode, Node*const asteroidNode ) {
+  addSplashAt(laserNode->getPosition(), asteroidNode->getPosition());
+  laserNode->removeFromParentAndCleanup(true);
 
+  auto afr = asteroidNodes.find(asteroidNode->getName());
+  if (afr != asteroidNodes.end()) {
+
+    AsteroidNode* an = afr->second;
+
+    if (an->getType() == RT_big) {
+      addTwoAsteroids(an->getAngle(), an->getPosition(), RT_medium);
+    }
+    else if (an->getType() == RT_medium) {
+      addTwoAsteroids(an->getAngle(), an->getPosition(), RT_small);
+    }
+
+    asteroidNodes.erase(afr);
+  }
+  asteroidNode->removeFromParentAndCleanup(true);
+
+  if ( asteroidNodes.empty() ) {
+    processGameOver(true);
+  }
+}
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .

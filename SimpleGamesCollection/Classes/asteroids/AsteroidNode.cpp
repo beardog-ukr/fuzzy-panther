@@ -14,8 +14,7 @@ using namespace std;
 
 static const double pi = acos(-1);
 
-// static const int categoryMaskAsteroid = 0x02;
-// static const int categoryMaskShip = 0x01;
+int AsteroidNode::idGenerator = 1;
 
 static const int smallPointsCount = 6;
 static const Vec2 smallPoints[smallPointsCount] = {
@@ -48,8 +47,6 @@ static const Vec2 bigPoints[bigPointsCount] = {
   {.x =   -60, .y =    4 },
   {.x =   -40, .y =    41  }
 };
-
-
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
@@ -86,7 +83,7 @@ AsteroidNode::~AsteroidNode() {
 Vec2 AsteroidNode::calculatePointA(const Vec2& currentPos, const double rotationAngle) const {
   Vec2 result;
 
-  if ((rotationAngle>0)&&(rotationAngle<pi/2)) {
+  if ((rotationAngle>=0)&&(rotationAngle<pi/2)) {
     result = calculatePointAupright(currentPos, rotationAngle);
   }
   else if ((rotationAngle>=pi/2)&&(rotationAngle<pi)) {
@@ -256,6 +253,18 @@ Vec2 AsteroidNode::calculatePointB(const Vec2& currentPos, const double rotation
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
+double AsteroidNode::getAngle() const {
+  return basicAngle;
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+RockType AsteroidNode::getType() const {
+  return type;
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
 AsteroidNode* AsteroidNode::create(const double angle, const RockType type,
                                    shared_ptr<SixCatsLogger> c6) {
 
@@ -304,6 +313,9 @@ bool AsteroidNode::initBaseSprite() {
   }
 
   baseSprite->setTag(IT_asteroid);
+  const string bn = makeBaseName();
+  baseSprite->setName(bn);
+  setName(makeName(bn));
 
   // baseSprite->setOpacity(60);
 
@@ -351,9 +363,27 @@ bool AsteroidNode::initPhysicsBody() {
   physicsBody->setContactTestBitmask(0xFFFFFFFF);
 
   baseSprite->addComponent(physicsBody);
-  // baseSprite->setTag(IT_asteroid);
 
   return true;
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+string AsteroidNode::makeBaseName() {
+  ostringstream ss;
+  ss << "asteroid";
+  ss << idGenerator;
+  idGenerator++;
+  return ss.str();
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+string AsteroidNode::makeName(const string& baseName) {
+  ostringstream ss;
+  ss << baseName;
+  ss << "base";
+  return ss.str();
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
