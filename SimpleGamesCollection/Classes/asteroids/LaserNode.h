@@ -13,6 +13,8 @@ public:
 
   void start();
 
+  static std::string makeName(const std::string& baseName);
+
 protected:
   LaserNode(const double angle);
   virtual ~LaserNode();
@@ -44,6 +46,9 @@ protected:
   double rightMargin;
 
   cocos2d::Sprite* baseSprite;
+
+  static int idGenerator;
+  static std::string makeBaseName();
 };
 
 }

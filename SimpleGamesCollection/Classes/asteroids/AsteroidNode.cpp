@@ -400,7 +400,7 @@ void AsteroidNode::setAngle(const double rotationAngle) {
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 void AsteroidNode::start() {
-  setAngle(basicAngle);// calcu;ation is performed hee because only at this point
+  setAngle(basicAngle);// calculation is performed hee because only at this point
   //position of the node is defined
   resetMove();
 }

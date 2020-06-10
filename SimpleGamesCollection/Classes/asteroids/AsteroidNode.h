@@ -19,7 +19,7 @@ public:
   double getAngle() const;
   RockType getType() const;
 
-  std::string makeName(const std::string& baseName);
+  static std::string makeName(const std::string& baseName);
 
 protected:
   AsteroidNode(const double angle, const RockType type);

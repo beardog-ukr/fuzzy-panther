@@ -46,6 +46,8 @@ void GameManager::addLaser() {
   gameNode->addChild(laserNode, ZO_laser);
 
   laserNode->start();
+
+  laserNodes.insert({laserNode->getName(), laserNode});
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -150,11 +152,11 @@ bool GameManager::initAsteroids() {
 
   const int initialCount = 2;
   Vec2 points[initialCount] = {
-    //{.x = 400, .y = 250}, {.x = 500, .y = 150}
-    {.x = 300, .y = 250}, {.x = 300, .y = 240}
+    {.x = 400, .y = 250}, {.x = 500, .y = 150}
+    //{.x = 300, .y = 250}, {.x = 300, .y = 240}
   };
 
-  const RockType types[initialCount] = {RT_medium, RT_medium};
+  const RockType types[initialCount] = {RT_big, RT_medium};
 
   for (int i = 0; i<initialCount; i++) {
     AsteroidNode* asteroidNode = AsteroidNode::create(20, types[i], c6);
@@ -189,7 +191,6 @@ bool GameManager::initGameNode() {
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 bool GameManager::initSpaceship() {
-
   spaceshipNode = SpaceshipNode::create(c6);
   if (spaceshipNode == nullptr) {
     C6_C1(c6, "Failed to init spaceship");
@@ -198,7 +199,6 @@ bool GameManager::initSpaceship() {
 
   spaceshipNode->setPosition(320.0,450.0);
   gameNode->addChild(spaceshipNode,  ZO_ss);
-  C6_C2(c6, "Added spaceship to ", "320x450" );//spaceshipNode->getPosition().x);
 
   return true;
 }
@@ -260,11 +260,13 @@ bool GameManager::processContact(PhysicsContact& contact) {
   else if ((laserAgent != nullptr)&&(asteroidAgent!= nullptr)) {
     //laser vs asteroid
 
-    Node* laserParent = laserAgent->getParent();
-    Node* asteroidParent = asteroidAgent->getParent();
+    // Node* laserParent = laserAgent->getParent();
+    // Node* asteroidParent = asteroidAgent->getParent();
+    string laserNodeName = LaserNode::makeName(laserAgent->getName());
+    string asteroidNodeName = AsteroidNode::makeName(asteroidAgent->getName());
 
-    CallFunc *cf = CallFunc::create([this, laserParent, asteroidParent]() {
-      processLaserVsAsteroid(laserParent, asteroidParent);
+    CallFunc *cf = CallFunc::create([this, laserNodeName, asteroidNodeName]() {
+      processLaserVsAsteroid(laserNodeName, asteroidNodeName);
     });
     Sequence* seq = Sequence::create(DelayTime::create(0.1), cf, nullptr);
     gameNode->runAction(seq);
@@ -343,26 +345,43 @@ bool GameManager::processKeyCode(const EventKeyboard::KeyCode keyCode) {
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-void GameManager::processLaserVsAsteroid(Node*const laserNode, Node*const asteroidNode ) {
+void GameManager::processLaserVsAsteroid(const string& laserNodeName,
+                                         const string& asteroidNodeName ) {
+  LaserNode* laserNode = nullptr;
+  auto lnfr = laserNodes.find(laserNodeName);
+  if (lnfr != laserNodes.end()) {
+    laserNode = lnfr->second;
+  }
+
+  AsteroidNode* asteroidNode = nullptr;
+  auto anfr = asteroidNodes.find(asteroidNodeName);
+  if (anfr != asteroidNodes.end()) {
+    asteroidNode = anfr->second;
+  }
+
+  if ((laserNode==nullptr)||(asteroidNode==nullptr)) {
+    C6_D4(c6, "Some node not found, probably double collision: ",
+          laserNodeName, " and ", asteroidNodeName);
+    return;
+  }
+
+  // --- remove laser node
   addSplashAt(laserNode->getPosition(), asteroidNode->getPosition());
   laserNode->removeFromParentAndCleanup(true);
+  laserNodes.erase(lnfr);
 
-  auto afr = asteroidNodes.find(asteroidNode->getName());
-  if (afr != asteroidNodes.end()) {
-
-    AsteroidNode* an = afr->second;
-
-    if (an->getType() == RT_big) {
-      addTwoAsteroids(an->getAngle(), an->getPosition(), RT_medium);
-    }
-    else if (an->getType() == RT_medium) {
-      addTwoAsteroids(an->getAngle(), an->getPosition(), RT_small);
-    }
-
-    asteroidNodes.erase(afr);
+  // --- remove current asteroid node; add two new ones if it was big or medium
+  if (asteroidNode->getType() == RT_big) {
+    addTwoAsteroids(asteroidNode->getAngle(), asteroidNode->getPosition(), RT_medium);
   }
-  asteroidNode->removeFromParentAndCleanup(true);
+  else if (asteroidNode->getType() == RT_medium) {
+    addTwoAsteroids(asteroidNode->getAngle(), asteroidNode->getPosition(), RT_small);
+  }
 
+  asteroidNode->removeFromParentAndCleanup(true);
+  asteroidNodes.erase(anfr);
+
+  // --- check victory condition
   if ( asteroidNodes.empty() ) {
     processGameOver(true);
   }

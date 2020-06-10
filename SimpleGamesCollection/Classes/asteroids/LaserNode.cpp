@@ -15,6 +15,8 @@ static const double pi = acos(-1);
 
 const double laserSpeed = 3.0;
 
+int LaserNode::idGenerator = 1;
+
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 static double calculateDistance(const Vec2& one, const Vec2& two) {
@@ -242,6 +244,12 @@ bool LaserNode::initBaseSprite() {
 
   // baseSprite->setOpacity(60);
 
+  const string bn = makeBaseName();
+  baseSprite->setName(bn);
+  setName(makeName(bn));
+  baseSprite->setTag(IT_laser);
+
+
   addChild(baseSprite, ZO_laser);
 
   return true;
@@ -263,9 +271,27 @@ bool LaserNode::initPhysicsBody() {
   physicsBody->setContactTestBitmask(0xFFFFFFFF);
 
   baseSprite->addComponent(physicsBody);
-  baseSprite->setTag(IT_laser);
 
   return true;
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+string LaserNode::makeBaseName() {
+  ostringstream ss;
+  ss << "laser";
+  ss << idGenerator;
+  idGenerator++;
+  return ss.str();
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+string LaserNode::makeName(const string& baseName) {
+  ostringstream ss;
+  ss << baseName;
+  ss << "base";
+  return ss.str();
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .

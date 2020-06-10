@@ -8,6 +8,7 @@
 namespace asteroids {
 
 class AsteroidNode;
+class LaserNode;
 enum RockType : unsigned int;
 class SpaceshipNode;
 
@@ -37,7 +38,9 @@ protected:
   void rotateSpaceship(const cocos2d::EventKeyboard::KeyCode keyCode);
 
   void processGameOver(const bool victory);
-  void processLaserVsAsteroid(cocos2d::Node*const laserNode, cocos2d::Node*const asteroidNode );
+  // void processLaserVsAsteroid(cocos2d::Node*const laserNode, cocos2d::Node*const asteroidNode );
+  void processLaserVsAsteroid(const std::string& laserNodeName,
+                              const std::string& asteroidNodeName );
   void addTwoAsteroids(const double currentAngle, const cocos2d::Vec2& position,
                        const RockType type);
 
@@ -49,6 +52,7 @@ protected:
 
   cocos2d::Node* gameNode;
   std::map <std::string, AsteroidNode*> asteroidNodes;
+  std::map <std::string, LaserNode*> laserNodes;
   SpaceshipNode* spaceshipNode;
 };
 
