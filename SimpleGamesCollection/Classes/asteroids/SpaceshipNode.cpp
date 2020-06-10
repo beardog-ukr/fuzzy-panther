@@ -6,19 +6,34 @@ using namespace asteroids;
 #include "SixCatsLoggerMacro.h"
 #include <sstream>
 
-#include <cmath>
+#include <cmath> // round
+#include <cstdlib> //div
 static const double pi = acos(-1);
 
 USING_NS_CC;
 using namespace std;
 
 enum SpaceshipNodeAnimationTags {
-  SNAT_Rotation,
+  SNAT_RotationClockwice,
+  SNAT_RotationCounterClockwice,
   SNAT_Move
 };
 
-static const float rotationDurarionOneStep = 0.5;
+static const float rotationDurarionOneStep = 2;
+static const float rotationValueOneStep = 85;
 static const float moveDurarionOneStep = 1.0;
+
+static double calculateNormalizedRotation(const double rotation) {
+  double result = rotation;
+  if (rotation>=360) {
+    result = div((int)round(rotation), 360).rem;
+  }
+  else if (rotation<0) {
+    result = 360 - div((int)round(abs(rotation)), 360).rem;
+  }
+
+  return result;
+}
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
@@ -51,27 +66,6 @@ SpaceshipNode* SpaceshipNode::create(shared_ptr<SixCatsLogger> c6) {
 
   pRet->autorelease();
   return pRet;
-}
-
-// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
-
-void SpaceshipNode::doRotate(const int changeValue) {
-
-  stopAllActionsByTag(SNAT_Rotation);
-
-  float currentValue = getRotation();
-
-  float newValue = currentValue + changeValue;
-  if (newValue>360) {
-    newValue -= 360;
-  }
-  else if (newValue <0) {
-    newValue = newValue +360;
-  }
-
-  RotateTo* ra = RotateTo::create(rotationDurarionOneStep, newValue);
-  ra->setTag(SNAT_Rotation);
-  runAction(ra);
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -136,7 +130,7 @@ bool SpaceshipNode::init() {
 
 Vec2 SpaceshipNode::calculateNewForwardPosition() {
   const Vec2 currentPosition = getPosition();
-  const float currentRotation = getRotation();
+  const float currentRotation = calculateNormalizedRotation(getRotation());
 
   Vec2 result = currentPosition;
 
@@ -182,6 +176,10 @@ Vec2 SpaceshipNode::calculateNewForwardPosition() {
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 void SpaceshipNode::moveForward() {
+  stopAllActionsByTag(SNAT_RotationClockwice);
+  stopAllActionsByTag(SNAT_RotationCounterClockwice);
+
+
   const int nra = getNumberOfRunningActionsByTag(SNAT_Move);
   if (nra>0) {
     C6_T3(c6, "Move skipped because it's already running ", nra, " times");
@@ -200,13 +198,33 @@ void SpaceshipNode::moveForward() {
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 void SpaceshipNode::rotateClockwice() {
-  doRotate(10);
+  Action* ccAction = getActionByTag(SNAT_RotationCounterClockwice);
+  if (ccAction!=nullptr) {
+    stopAction(ccAction);
+    return;
+  }
+
+  stopAllActionsByTag(SNAT_RotationClockwice);
+
+  RotateBy* ra = RotateBy::create(rotationDurarionOneStep, rotationValueOneStep);
+  ra->setTag(SNAT_RotationClockwice);
+  runAction(ra);
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 void SpaceshipNode::rotateCounterClockwice() {
-  doRotate(-10);
+  Action* ccAction = getActionByTag(SNAT_RotationClockwice);
+  if (ccAction!=nullptr) {
+    stopAction(ccAction);
+    return;
+  }
+
+  stopAllActionsByTag(SNAT_RotationCounterClockwice);
+
+  RotateBy* ra = RotateBy::create(rotationDurarionOneStep, (-1)*rotationValueOneStep);
+  ra->setTag(SNAT_RotationCounterClockwice);
+  runAction(ra);
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
