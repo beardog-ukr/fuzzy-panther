@@ -41,6 +41,12 @@ protected:
   void addTwoAsteroids(const double currentAngle, const cocos2d::Vec2& position,
                        const RockType type);
 
+  bool evaluateContactAgents(cocos2d::Node * nodeA, cocos2d::Node * nodeB,
+                             cocos2d::Node*& laserAgent, cocos2d::Node*& asteroidAgent,
+                             cocos2d::Node*& shipAgent);
+
+  void processGameOverStage1(cocos2d::Node* asteroidAgent);
+
   cocos2d::Node* gameNode;
   std::map <std::string, AsteroidNode*> asteroidNodes;
   SpaceshipNode* spaceshipNode;

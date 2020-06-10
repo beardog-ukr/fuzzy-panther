@@ -16,6 +16,10 @@ static const float splashDelay = 3;
 USING_NS_CC;
 using namespace std;
 
+enum GameManagerActionTags {
+  GMAT_processing_game_over = 10
+};
+
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 GameManager::GameManager() {
@@ -90,15 +94,67 @@ void GameManager::addTwoAsteroids(const double currentAngle, const cocos2d::Vec2
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
+bool GameManager::evaluateContactAgents(Node * nodeA, Node * nodeB,
+                                        Node*& laserAgent, Node*& asteroidAgent, Node*& shipAgent) {
+  laserAgent = nullptr;
+  asteroidAgent = nullptr;
+  shipAgent = nullptr;
+
+  switch( nodeA->getTag()) {
+  case IT_laser:
+    laserAgent = nodeA;
+    C6_D1(c6, "Node A is laser");
+    break;
+  case IT_asteroid:
+    asteroidAgent = nodeA;
+    C6_D1(c6, "Node A is asteroid");
+    break;
+  case IT_ship:
+    shipAgent = nodeA;
+    C6_D1(c6, "Node A is ss");
+    break;
+  default:
+    C6_I2(c6, "Bad call A:", (int)nodeA->getTag());
+    return false;
+  }
+
+  switch( (int)nodeB->getTag()) {
+  case IT_laser:
+    if (laserAgent != nullptr) {
+      C6_D1(c6, "Both are lasers");
+    }
+    laserAgent = nodeB;
+
+    break;
+  case IT_asteroid:
+    if (asteroidAgent!=nullptr) {
+      C6_D1(c6, "Both are asteroids");
+    }
+    asteroidAgent = nodeB;
+    break;
+  case IT_ship:
+    shipAgent = nodeB;
+    break;
+  default:
+    C6_I2(c6, "Bad call B:", (int)nodeB->getTag());
+    return false;
+  }
+
+  return true;
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
 bool GameManager::initAsteroids() {
   asteroidNodes.clear();
 
   const int initialCount = 2;
   Vec2 points[initialCount] = {
-    {.x = 400, .y = 250}, {.x = 500, .y = 150}
+    //{.x = 400, .y = 250}, {.x = 500, .y = 150}
+    {.x = 300, .y = 250}, {.x = 300, .y = 240}
   };
 
-  const RockType types[initialCount] = {RT_big, RT_medium};
+  const RockType types[initialCount] = {RT_medium, RT_medium};
 
   for (int i = 0; i<initialCount; i++) {
     AsteroidNode* asteroidNode = AsteroidNode::create(20, types[i], c6);
@@ -191,67 +247,15 @@ bool GameManager::processContact(PhysicsContact& contact) {
   Node* laserAgent = nullptr;
   Node* asteroidAgent = nullptr;
   Node* shipAgent = nullptr;
-  switch( nodeA->getTag()) {
-  case IT_laser:
-    laserAgent = nodeA;
-    C6_D1(c6, "Node A is laser");
-    break;
-  case IT_asteroid:
-    asteroidAgent = nodeA;
-    C6_D1(c6, "Node A is asteroid");
-    break;
-  case IT_ship:
-    shipAgent = nodeA;
-    C6_D1(c6, "Node A is ss");
-    break;
-  default:
-    C6_I2(c6, "Bad call A:", (int)nodeA->getTag());
-    return true;
-  }
-
-  switch( (int)nodeB->getTag()) {
-  case IT_laser:
-    if (laserAgent != nullptr) {
-      C6_D1(c6, "Both are lasers");
-    }
-    laserAgent = nodeB;
-
-    break;
-  case IT_asteroid:
-    if (asteroidAgent!=nullptr) {
-      C6_D1(c6, "Both are asteroids");
-    }
-    asteroidAgent = nodeB;
-
-    break;
-  case IT_ship:
-    shipAgent = nodeB;
-    break;
-  default:
-    C6_I2(c6, "Bad call B:", (int)nodeB->getTag());
+  if (!evaluateContactAgents(nodeA, nodeB,laserAgent, asteroidAgent, shipAgent)) {
     return true;
   }
 
   if ((shipAgent != nullptr)&&(asteroidAgent!= nullptr)) {
     //ship vs asteroid, game over
-    C6_I1(c6, "Game Over");
+    C6_D1(c6, "Game Over");
 
-    Node* shipParent = shipAgent->getParent();
-    Node* asteroidParent = asteroidAgent->getParent();
-    addSplashAt(shipParent->getPosition(), asteroidParent->getPosition());
-
-    shipParent->stopAllActions();
-    shipAgent->runAction(FadeOut::create(splashDelay));
-
-    asteroidParent->stopAllActions();
-    asteroidAgent->runAction(FadeOut::create(splashDelay));
-
-    CallFunc *cf = CallFunc::create([this]() {
-      this->processGameOver(false);
-    });
-
-    Sequence* seq = Sequence::create(DelayTime::create(splashDelay*1.1), cf, nullptr);
-    gameNode->runAction(seq);
+    processGameOverStage1(asteroidAgent);
   }
   else if ((laserAgent != nullptr)&&(asteroidAgent!= nullptr)) {
     //laser vs asteroid
@@ -285,6 +289,33 @@ void GameManager::processGameOver(const bool victory) {
   Director::getInstance()->pushScene(gameEndScene);
 }
 
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+void GameManager::processGameOverStage1(cocos2d::Node* asteroidAgent) {
+  Action const * pgoAction = gameNode->getActionByTag(GMAT_processing_game_over);
+  if (pgoAction != nullptr) {
+    C6_D1(c6, "Game over request skipped, there is one already");
+    return;
+  }
+
+  // Node* shipParent = shipAgent->getParent();
+  Node* asteroidParent = asteroidAgent->getParent();
+  addSplashAt(spaceshipNode->getPosition(), asteroidParent->getPosition());
+
+  // spaceshipNode->doDie();
+
+  asteroidParent->stopAllActions();
+  asteroidAgent->runAction(FadeOut::create(splashDelay));
+
+  CallFunc *cf = CallFunc::create([this]() {
+    this->processGameOver(false);
+  });
+
+  Sequence* seq = Sequence::create(DelayTime::create(splashDelay*1.1), cf, nullptr);
+  seq->setTag(GMAT_processing_game_over);
+  gameNode->runAction(seq);
+
+}
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
