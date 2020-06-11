@@ -44,6 +44,7 @@ list(APPEND GAME_SOURCE
      Classes/asteroids/SpaceshipNode.cpp
      Classes/bird/BirdMainScene.cpp
      Classes/bird/MapSectionNode.cpp
+     Classes/bird/WizardNode.cpp
      Classes/main_menu/BackgroundNode.cpp
      Classes/main_menu/MainMenuScene.cpp
      )
@@ -59,6 +60,7 @@ list(APPEND GAME_HEADER
      Classes/bird/BirdMainScene.h
      Classes/bird/CommonUtils.h
      Classes/bird/MapSectionNode.h
+     Classes/bird/WizardNode.h
      Classes/main_menu/BackgroundNode.h
      Classes/main_menu/MainMenuScene.h
      )

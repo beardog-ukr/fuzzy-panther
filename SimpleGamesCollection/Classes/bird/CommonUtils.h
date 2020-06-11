@@ -12,10 +12,10 @@ enum ZOrderValues {
   ZO_scene_border = 60,
 };
 
-// enum CategoryMasks {
-//   CM_cliff = 0x01,
-//   CM_wizard = 0x02
-// };
+enum CategoryMasks {
+  CM_cliff = 0x01,
+  CM_wizard = 0x02
+};
 
 // enum ItemsTags {
 //   IT_wizard = 1,

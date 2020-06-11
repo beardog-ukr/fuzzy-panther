@@ -1,4 +1,5 @@
 #include "bird/BirdMainScene.h"
+#include "bird/WizardNode.h"
 
 #include "SixCatsLogger.h"
 #include "SixCatsLoggerMacro.h"
@@ -21,13 +22,14 @@ static const int mapSectionHeight = 576;
 static const float mapSectionMoveDuration = 3.0;
 static const int mapSectionsCount = 4;
 
-
-
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 BirdMainScene::BirdMainScene() {
   mapSections.resize(mapSectionsCount+2);
   mapSectionPositions.resize(mapSectionsCount+2);
+
+  obstacleLevelGeneratorArr = {8,7,8,9};
+  nextObstacleLevelGeneratorIdx = 0;
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -38,27 +40,16 @@ BirdMainScene::~BirdMainScene() {
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-MapSectionNode* BirdMainScene::addNewMapSection() {
-  MapSectionNode* msNode = MapSectionNode::create("bird/module01.png", c6);
+MapSectionNode* BirdMainScene::addNewMapSection(const Vec2& position) {
+  int nol = getNextObstacleLevel();
+
+  MapSectionNode* msNode = MapSectionNode::create(nol, c6);
   if (msNode == nullptr) {
     return nullptr;
   }
 
-  const Size sceneSize = getContentSize();
-// Vec2 mp;
-// mp.x = sceneSize.width/2 - gameWindowWidth/2 + moduleWidth*(3+1) - moduleWidth/2;
-// mp.y = sceneSize.height/2;
-  msNode->setPosition(mapSectionPositions[mapSectionsCount+1]);
+  msNode->setPosition(position);
   addChild(msNode, ZO_game_background);
-
-  // mapSections[mapSectionsCount+1] = msNode;
-
-  // MoveTo* mta = MoveTo::create(moduleMoveDuration*(3+1), pointModuleDelete);
-  // CallFunc *cf = CallFunc::create([this]() {
-  //   this->addNewModule();
-  // });
-  // Sequence* seq = Sequence::create(mta, cf, RemoveSelf::create(), nullptr);
-  // moduleNode->runAction(seq);
 
   return msNode;
 }
@@ -87,16 +78,34 @@ Scene* BirdMainScene::createScene(std::shared_ptr<SixCatsLogger> inC6) {
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
+int BirdMainScene::getNextObstacleLevel() {
+  int result = obstacleLevelGeneratorArr[nextObstacleLevelGeneratorIdx];
+  nextObstacleLevelGeneratorIdx++;
+  if (nextObstacleLevelGeneratorIdx >= obstacleLevelGeneratorArr.size()) {
+    nextObstacleLevelGeneratorIdx = 0;
+  }
+
+  return result;
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
 bool BirdMainScene::init() {
   //////////////////////////////
   // 1. super init first
-  if ( !Scene::init() ) {
+  // if ( !Scene::init() ) {
+  //   return false;
+  // }
+  if ( !Scene::initWithPhysics() ) {
     return false;
   }
 
-  if (!initBackground()) {
-    return false;
-  }
+  getPhysicsWorld()->setDebugDrawMask(PhysicsWorld::DEBUGDRAW_SHAPE);
+
+
+  // if (!initBackground()) {
+  //   return false;
+  // }
 
   if (!initModules()) {
     return false;
@@ -160,9 +169,7 @@ bool BirdMainScene::initKeyboardProcessing() {
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 bool BirdMainScene::initModules() {
-  const string msNames[mapSectionsCount] = {
-    "bird/module01.png", "bird/module02.png", "bird/module03.png", "bird/module04.png"
-  };
+
 
   const Size sceneSize = getContentSize();
 
@@ -177,31 +184,7 @@ bool BirdMainScene::initModules() {
 
   mapSections[0] = nullptr;
   for (int i = 0; i<mapSectionsCount; i++) {
-    MapSectionNode* msNode = MapSectionNode::create(msNames[i], c6);
-    if (msNode == nullptr) {
-      return false;
-    }
-
-    msNode->setPosition(mapSectionPositions[i+1]);
-    addChild(msNode, ZO_game_background);
-
-    mapSections[i+1] = msNode;
-
-
-
-    // MoveTo* mta;
-    // if (i>0) {
-    //   mta = MoveTo::create(moduleMoveDuration, points[i-1]);
-    // }
-    // else {
-    //   mta = MoveTo::create(moduleMoveDuration, pointModuleDelete);//
-    // }
-    // // CallFunc *cf = CallFunc::create([this]() {
-    // // this->addNewModule();
-    // // });
-    // //Sequence* seq = Sequence::create(mta, cf, RemoveSelf::create(), nullptr);
-    // Sequence* seq = Sequence::create(mta, RemoveSelf::create(), nullptr);
-    // moduleNode->runAction(seq);
+    mapSections[i+1] = addNewMapSection(mapSectionPositions[i+1]);
   }
 
   return true;
@@ -210,11 +193,16 @@ bool BirdMainScene::initModules() {
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 bool BirdMainScene::initWizard() {
-  const string bFn = "bird/wizard_idle_00.png";
-  Sprite* sprite;
-  sprite = Sprite::create(bFn);
-  if (sprite == nullptr) {
-    C6_C2(c6, "Error while loading: ", bFn);
+  // const string bFn = "bird/wizard_idle_00.png";
+  // Sprite* sprite;
+  // sprite = Sprite::create(bFn);
+  // if (sprite == nullptr) {
+  //   C6_C2(c6, "Error while loading: ", bFn);
+  //   return false;
+  // }
+
+  wizardNode = WizardNode::create(c6);
+  if (wizardNode==nullptr) {
     return false;
   }
 
@@ -223,10 +211,8 @@ bool BirdMainScene::initWizard() {
   wizardBasePosition.x = sceneSize.width/2 - gameWindowWidth/2 + mapSectionWidth/2;
   wizardBasePosition.y = sceneSize.height/2;
 
-  sprite->setPosition(wizardBasePosition);
-  addChild(sprite, ZO_wizard);
-
-
+  wizardNode->setPosition(wizardBasePosition);
+  addChild(wizardNode, ZO_wizard);
 
   return true;
 }
@@ -270,11 +256,14 @@ void BirdMainScene::startGame() {
 void BirdMainScene::doOneTick() {
 
   if (mapSections[0] != nullptr) {
+    C6_D1(c6, "Calling remove for some section");
     mapSections[0]->removeFromParentAndCleanup(true);
+    // mapSections[0]->release();
+
     mapSections[0] = nullptr;
   }
 
-  mapSections[mapSectionsCount+1] = addNewMapSection();
+  mapSections[mapSectionsCount+1] = addNewMapSection(mapSectionPositions[mapSectionsCount+1]);
 
   for (int i = 1; i<(mapSectionsCount+2); i++) {
     if (mapSections[i]==nullptr) {
