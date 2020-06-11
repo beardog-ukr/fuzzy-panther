@@ -1,11 +1,14 @@
 #pragma once
 
 #include <memory>
-
+#include <vector>
 #include "cocos2d.h"
 #include "SixCatsLoggerLoggable.h"
 
+
 namespace bird {
+
+class MapSectionNode;
 
 class BirdMainScene : public cocos2d::Scene,
   virtual public SixCatsLoggerLoggable
@@ -23,8 +26,14 @@ protected:
   bool initModules();
   bool initWizard();
 
-  cocos2d::Vec2 pointDelete;
-  void addNewModule();
+  // cocos2d::Vec2 pointMapSectionDelete;
+
+  MapSectionNode* addNewMapSection();
+  void startGame();
+  void doOneTick();
+
+  std::vector<cocos2d::Vec2> mapSectionPositions;
+  std::vector<MapSectionNode*> mapSections;
 
   // void mcBackToMain(cocos2d::Ref *pSender);
   // void mcTryAgain(cocos2d::Ref *pSender);

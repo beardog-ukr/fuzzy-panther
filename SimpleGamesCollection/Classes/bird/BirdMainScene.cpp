@@ -6,25 +6,28 @@
 
 USING_NS_CC;
 using namespace std;
+#include <cmath>
 
 #include "bird/CommonUtils.h"
-#include "bird/ModuleNode.h"
+#include "bird/MapSectionNode.h"
 using namespace bird;
 
 static const int gameWindowWidth = 640;
 static const int gameWindowHeight = 576;
 
-static const int moduleWidth = 192;
-static const int moduleHeight = 576;
+static const int mapSectionWidth = 192;
+static const int mapSectionHeight = 576;
 
-static const float moduleMoveDuration = 3.0;
+static const float mapSectionMoveDuration = 3.0;
+static const int mapSectionsCount = 4;
 
 
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 BirdMainScene::BirdMainScene() {
-  // ntdh
+  mapSections.resize(mapSectionsCount+2);
+  mapSectionPositions.resize(mapSectionsCount+2);
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -35,25 +38,29 @@ BirdMainScene::~BirdMainScene() {
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-void BirdMainScene::addNewModule() {
-  ModuleNode* moduleNode = ModuleNode::create("bird/module01.png", c6);
-  if (moduleNode == nullptr) {
-    return;
+MapSectionNode* BirdMainScene::addNewMapSection() {
+  MapSectionNode* msNode = MapSectionNode::create("bird/module01.png", c6);
+  if (msNode == nullptr) {
+    return nullptr;
   }
 
   const Size sceneSize = getContentSize();
-  Vec2 mp;
-  mp.x = sceneSize.width/2 - gameWindowWidth/2 + moduleWidth*(3+1) - moduleWidth/2;
-  mp.y = sceneSize.height/2;
-  moduleNode->setPosition(mp);
-  addChild(moduleNode, ZO_game_background);
+// Vec2 mp;
+// mp.x = sceneSize.width/2 - gameWindowWidth/2 + moduleWidth*(3+1) - moduleWidth/2;
+// mp.y = sceneSize.height/2;
+  msNode->setPosition(mapSectionPositions[mapSectionsCount+1]);
+  addChild(msNode, ZO_game_background);
 
-  MoveTo* mta = MoveTo::create(moduleMoveDuration*(3+1), pointDelete);
-  CallFunc *cf = CallFunc::create([this]() {
-    this->addNewModule();
-  });
-  Sequence* seq = Sequence::create(mta, cf, RemoveSelf::create(), nullptr);
-  moduleNode->runAction(seq);
+  // mapSections[mapSectionsCount+1] = msNode;
+
+  // MoveTo* mta = MoveTo::create(moduleMoveDuration*(3+1), pointModuleDelete);
+  // CallFunc *cf = CallFunc::create([this]() {
+  //   this->addNewModule();
+  // });
+  // Sequence* seq = Sequence::create(mta, cf, RemoveSelf::create(), nullptr);
+  // moduleNode->runAction(seq);
+
+  return msNode;
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -102,6 +109,9 @@ bool BirdMainScene::init() {
   if (!initKeyboardProcessing()) {
     return false;
   }
+
+  startGame();
+
   return true;
 }
 
@@ -150,37 +160,49 @@ bool BirdMainScene::initKeyboardProcessing() {
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 bool BirdMainScene::initModules() {
-  const int amCount = 4;
-  const string moduleNames[amCount] = {
+  const string msNames[mapSectionsCount] = {
     "bird/module01.png", "bird/module02.png", "bird/module03.png", "bird/module04.png"
   };
-  // const ModuleNode*
 
   const Size sceneSize = getContentSize();
 
-  pointDelete.x = sceneSize.width/2 - gameWindowWidth/2 - moduleWidth/2;
-  pointDelete.y = sceneSize.height/2;
+  // 0 is for point where section gets deleted
+  mapSectionPositions[0].x = round(sceneSize.width/2 - gameWindowWidth/2 - mapSectionWidth/2);
+  mapSectionPositions[0].y = sceneSize.height/2;
 
-  for (int i = 0; i<amCount; i++) {
-    ModuleNode* moduleNode = ModuleNode::create(moduleNames[i], c6);
-    if (moduleNode == nullptr) {
-      return false;
-    }
-    Vec2 mp;
-    mp.x = sceneSize.width/2 - gameWindowWidth/2 + moduleWidth*(i+1) - moduleWidth/2;
-    mp.y = sceneSize.height/2;
-    moduleNode->setPosition(mp);
-    addChild(moduleNode, ZO_game_background);
-
-    MoveTo* mta = MoveTo::create(moduleMoveDuration*(i+1), pointDelete);
-    CallFunc *cf = CallFunc::create([this]() {
-      this->addNewModule();
-    });
-    Sequence* seq = Sequence::create(mta, cf, RemoveSelf::create(), nullptr);
-    moduleNode->runAction(seq);
+  for (int i = 1; i<(mapSectionsCount+2); i++) {
+    mapSectionPositions[i].x = mapSectionPositions[i-1].x + mapSectionWidth;
+    mapSectionPositions[i].y = mapSectionPositions[0].y;
   }
 
+  mapSections[0] = nullptr;
+  for (int i = 0; i<mapSectionsCount; i++) {
+    MapSectionNode* msNode = MapSectionNode::create(msNames[i], c6);
+    if (msNode == nullptr) {
+      return false;
+    }
 
+    msNode->setPosition(mapSectionPositions[i+1]);
+    addChild(msNode, ZO_game_background);
+
+    mapSections[i+1] = msNode;
+
+
+
+    // MoveTo* mta;
+    // if (i>0) {
+    //   mta = MoveTo::create(moduleMoveDuration, points[i-1]);
+    // }
+    // else {
+    //   mta = MoveTo::create(moduleMoveDuration, pointModuleDelete);//
+    // }
+    // // CallFunc *cf = CallFunc::create([this]() {
+    // // this->addNewModule();
+    // // });
+    // //Sequence* seq = Sequence::create(mta, cf, RemoveSelf::create(), nullptr);
+    // Sequence* seq = Sequence::create(mta, RemoveSelf::create(), nullptr);
+    // moduleNode->runAction(seq);
+  }
 
   return true;
 }
@@ -198,7 +220,7 @@ bool BirdMainScene::initWizard() {
 
   const Size sceneSize = getContentSize();
   Vec2 wizardBasePosition;
-  wizardBasePosition.x = sceneSize.width/2 - gameWindowWidth/2 + moduleWidth/2;
+  wizardBasePosition.x = sceneSize.width/2 - gameWindowWidth/2 + mapSectionWidth/2;
   wizardBasePosition.y = sceneSize.height/2;
 
   sprite->setPosition(wizardBasePosition);
@@ -217,11 +239,51 @@ void BirdMainScene::onKeyPressedScene(EventKeyboard::KeyCode keyCode, Event *) {
   if (EventKeyboard::KeyCode::KEY_BACKSPACE == keyCode) {
     Director::getInstance()->popScene();
   }
+  else if (EventKeyboard::KeyCode::KEY_SPACE == keyCode) {
+    doOneTick();
+  }
   else if (EventKeyboard::KeyCode::KEY_X == keyCode) {
     c6->d(__c6_MN__, "Need to get out.");
 
     // Close the cocos2d-x game scene and quit the application
     Director::getInstance()->end();
+  }
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+void BirdMainScene::startGame() {
+
+  CallFunc *cf = CallFunc::create([this]() {
+    this->doOneTick();
+  });
+
+  Sequence* seq = Sequence::create(cf, DelayTime::create(mapSectionMoveDuration), nullptr);
+
+  Repeat* ra = Repeat::create(seq, 20);
+
+  runAction(ra);
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+void BirdMainScene::doOneTick() {
+
+  if (mapSections[0] != nullptr) {
+    mapSections[0]->removeFromParentAndCleanup(true);
+    mapSections[0] = nullptr;
+  }
+
+  mapSections[mapSectionsCount+1] = addNewMapSection();
+
+  for (int i = 1; i<(mapSectionsCount+2); i++) {
+    if (mapSections[i]==nullptr) {
+      continue;
+    }
+    mapSections[i]->stopAllActions();
+    MoveTo* mta = MoveTo::create(mapSectionMoveDuration, mapSectionPositions[i-1]);
+    mapSections[i]->runAction(mta);
+    mapSections[i-1] = mapSections[i];
   }
 }
 

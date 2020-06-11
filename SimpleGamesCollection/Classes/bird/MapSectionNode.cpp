@@ -1,4 +1,4 @@
-#include "bird/ModuleNode.h"
+#include "bird/MapSectionNode.h"
 
 #include "SixCatsLogger.h"
 #include "SixCatsLoggerMacro.h"
@@ -12,14 +12,14 @@ using namespace bird;
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-ModuleNode::ModuleNode() {
+MapSectionNode::MapSectionNode() {
   //objectId = objectIdGenerator++;
 
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-ModuleNode::~ModuleNode() {
+MapSectionNode::~MapSectionNode() {
   // ntdh
   C6_D1(c6, "here");
 }
@@ -27,8 +27,9 @@ ModuleNode::~ModuleNode() {
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 
-ModuleNode* ModuleNode::create(const std::string& filename, std::shared_ptr<SixCatsLogger> inc6) {
-  ModuleNode *result = new (std::nothrow) ModuleNode();
+MapSectionNode* MapSectionNode::create(const std::string& filename,
+                                       std::shared_ptr<SixCatsLogger> inc6) {
+  MapSectionNode *result = new (std::nothrow) MapSectionNode();
 
   if (result != nullptr) {
     result->setLogger(inc6);

@@ -43,7 +43,7 @@ list(APPEND GAME_SOURCE
      Classes/asteroids/LaserNode.cpp
      Classes/asteroids/SpaceshipNode.cpp
      Classes/bird/BirdMainScene.cpp
-     Classes/bird/ModuleNode.cpp
+     Classes/bird/MapSectionNode.cpp
      Classes/main_menu/BackgroundNode.cpp
      Classes/main_menu/MainMenuScene.cpp
      )
@@ -58,7 +58,7 @@ list(APPEND GAME_HEADER
      Classes/asteroids/ZOrderValues.h
      Classes/bird/BirdMainScene.h
      Classes/bird/CommonUtils.h
-     Classes/bird/ModuleNode.h
+     Classes/bird/MapSectionNode.h
      Classes/main_menu/BackgroundNode.h
      Classes/main_menu/MainMenuScene.h
      )
