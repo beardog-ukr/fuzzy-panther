@@ -1,7 +1,7 @@
 #include "MainMenuScene.h"
 
 #include "asteroids/AsteroidsScene.h"
-#include "asteroids/GameEndScene.h"
+#include "bird/BirdMainScene.h"
 
 #include "SixCatsLogger.h"
 #include "SixCatsLoggerMacro.h"
@@ -289,7 +289,7 @@ void MainMenuScene::mcSwitchToGame(cocos2d::Ref *pSender, const int menuCode) {
     newScene = asteroids::AsteroidsScene::createScene();
   }
   else if (menuCode == MCG_Bird) {
-    newScene = asteroids::GameEndScene::createScene(true, c6);
+    newScene = bird::BirdMainScene::createScene(c6);
   }
   else {
     C6_C2(c6, "Bad Call ", menuCode);
