@@ -23,6 +23,9 @@ protected:
 
   bool init();
   bool initBackground();
+  bool initBackgroundBorder();
+  bool initBackgroundGame();
+
   bool initKeyboardProcessing();
   bool initModules();
   bool initWizard();

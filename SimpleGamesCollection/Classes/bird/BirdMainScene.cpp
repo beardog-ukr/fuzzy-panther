@@ -2,6 +2,8 @@
 #include "bird/GameEndScene.h"
 #include "bird/WizardNode.h"
 
+#include "main_menu/BackgroundNode.h"
+
 #include "SixCatsLogger.h"
 #include "SixCatsLoggerMacro.h"
 #include <sstream>
@@ -133,11 +135,11 @@ bool BirdMainScene::init() {
     return false;
   }
 
-  getPhysicsWorld()->setDebugDrawMask(PhysicsWorld::DEBUGDRAW_SHAPE);
+  // getPhysicsWorld()->setDebugDrawMask(PhysicsWorld::DEBUGDRAW_SHAPE);
 
-  // if (!initBackground()) {
-  //   return false;
-  // }
+  if (!initBackground()) {
+    return false;
+  }
 
   if (!initModules()) {
     return false;
@@ -155,7 +157,6 @@ bool BirdMainScene::init() {
   contactListener->onContactBegin = CC_CALLBACK_1(BirdMainScene::onContactBegin, this);
   _eventDispatcher->addEventListenerWithSceneGraphPriority(contactListener, this);
 
-
   startGame();
 
   return true;
@@ -164,20 +165,22 @@ bool BirdMainScene::init() {
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 bool BirdMainScene::initBackground() {
-  const string bFn = "bird/full_scene.png";
-  Sprite* sprite;
-  sprite = Sprite::create(bFn);
-  if (sprite == nullptr) {
-    C6_C2(c6, "Error while loading: ", bFn);
+
+  if (!initBackgroundBorder()) {
     return false;
   }
-  sprite->setAnchorPoint(Vec2(0,0));
-  sprite->setPosition(0, 0);
-  addChild(sprite, ZO_scene_background);
 
+  if (!initBackgroundGame()) {
+    return false;
+  }
+
+  return true;
+}
+
+bool BirdMainScene::initBackgroundGame() {
 
   const char filename[] = "bird/visible_area.png";
-  sprite = Sprite::create(filename);
+  Sprite* sprite = Sprite::create(filename);
   if (sprite == nullptr) {
     C6_C2(c6, "Error while loading: ", filename);
     return false;
@@ -187,6 +190,88 @@ bool BirdMainScene::initBackground() {
   const Size cs = getContentSize();
   sprite->setPosition(cs.width/2, cs.height/2);
   addChild(sprite, ZO_scene_background);
+
+  return true;
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+bool BirdMainScene::initBackgroundBorder() {
+  const string bFn = "menu/seamless-1657428_640.jpg";
+  BackgroundNode* backgroundSource = BackgroundNode::create(getContentSize(), bFn, c6);
+  if (backgroundSource == nullptr) {
+    return false;
+  }
+
+  backgroundSource->setAnchorPoint(Vec2(0,0));
+  backgroundSource->setPosition(0,0);
+  addChild(backgroundSource);
+
+  // const string bFn = "bird/full_scene.png";
+  // Sprite* backgroundSource = Sprite::create(bFn);
+  // if (backgroundSource == nullptr) {
+  //   C6_C2(c6, "Error while loading: ", bFn);
+  //   return false;
+  // }
+  // backgroundSource->setAnchorPoint(Vec2(0,0));
+  // backgroundSource->setPosition(0, 0);
+  // addChild(backgroundSource, ZO_scene_background);
+
+  const Size cs = getContentSize();
+  const int rtH = (int)round(cs.height);
+  const int rtW = (int)round(cs.width/2 - (gameWindowWidth/2));
+
+  RenderTexture* rtLeft = RenderTexture::create(rtW, rtH);
+  rtLeft->begin();
+  backgroundSource->visit();
+  rtLeft->end();
+  Director::getInstance()->getRenderer()->render();
+
+  rtLeft->setPosition(rtW/2,rtH/2);
+  addChild(rtLeft, ZO_scene_border);
+
+  RenderTexture* rtUp = RenderTexture::create(gameWindowWidth, (cs.height-gameWindowHeight)/2);
+
+  backgroundSource->setPosition(0 - (cs.width/2 - (gameWindowWidth/2)),
+                                0-(gameWindowHeight + (cs.height-gameWindowHeight)/2));
+
+  rtUp->begin();
+  backgroundSource->visit();
+  rtUp->end();
+  Director::getInstance()->getRenderer()->render();
+
+  rtUp->setPosition(cs.width/2,
+                    gameWindowHeight + (cs.height-gameWindowHeight)/2 +
+                    (cs.height-gameWindowHeight)/4);
+  addChild(rtUp, ZO_scene_border);
+
+  RenderTexture* rtDown = RenderTexture::create(gameWindowWidth, (cs.height-gameWindowHeight)/2);
+
+  backgroundSource->setPosition(0 - (cs.width/2 - (gameWindowWidth/2)), 0);
+
+  rtDown->begin();
+  backgroundSource->visit();
+  rtDown->end();
+  Director::getInstance()->getRenderer()->render();
+
+  rtDown->setPosition(cs.width/2,(cs.height-gameWindowHeight)/4);
+  addChild(rtDown, ZO_scene_border);
+
+  RenderTexture* rtRight = RenderTexture::create(rtW, rtH);
+
+  backgroundSource->setPosition(0 - cs.width/2 - (gameWindowWidth/2), 0);
+
+  rtRight->begin();
+  backgroundSource->visit();
+  rtRight->end();
+  Director::getInstance()->getRenderer()->render();
+
+  rtRight->setPosition(cs.width - rtW/2,rtH/2);
+  addChild(rtRight, ZO_scene_border);
+
+
+  // --- finally remove background, it's not needed anymore
+  backgroundSource->removeFromParent();
 
   return true;
 }

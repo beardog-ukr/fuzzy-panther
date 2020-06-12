@@ -92,7 +92,7 @@ bool MapSectionNode::init(const int inObstacleType) {
     return false;
   }
 
-  setOpacity(90);
+  // setOpacity(90);
 
   return true;
 }
