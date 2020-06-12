@@ -27,8 +27,6 @@ protected:
   bool initModules();
   bool initWizard();
 
-  // cocos2d::Vec2 pointMapSectionDelete;
-
   MapSectionNode* addNewMapSection(const cocos2d::Vec2& position);
   void startGame();
   void doOneTick();
@@ -42,11 +40,13 @@ protected:
 
   WizardNode* wizardNode;
 
-  // void mcBackToMain(cocos2d::Ref *pSender);
-  // void mcTryAgain(cocos2d::Ref *pSender);
+  void resetAfterGameOver(const bool gameResult);
 
-  // bool onContactBegin(cocos2d::PhysicsContact& contact);
+  bool onContactBegin(cocos2d::PhysicsContact& contact);
   void onKeyPressedScene(cocos2d::EventKeyboard::KeyCode keyCode, cocos2d::Event *);
+
+  int sectionsForVictoryRequirement;
+  int sectionsPassedCounter;
 };
 
 }
