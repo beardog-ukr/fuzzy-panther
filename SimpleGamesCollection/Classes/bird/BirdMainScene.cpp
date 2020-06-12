@@ -33,7 +33,7 @@ BirdMainScene::BirdMainScene() {
   mapSections.resize(mapSectionsCount+2);
   mapSectionPositions.resize(mapSectionsCount+2);
 
-  obstacleLevelGeneratorArr = {8,7,8,9};
+  obstacleLevelGeneratorArr = {8,7,8,10,11, 9};
   nextObstacleLevelGeneratorIdx = 0;
 
   sectionsForVictoryRequirement = 15;
@@ -96,8 +96,6 @@ void BirdMainScene::doOneTick() {
   if (mapSections[0] != nullptr) {
     C6_D1(c6, "Calling remove for some section");
     mapSections[0]->removeFromParentAndCleanup(true);
-    // mapSections[0]->release();
-
     mapSections[0] = nullptr;
   }
 

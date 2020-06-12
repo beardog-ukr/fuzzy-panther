@@ -48,21 +48,28 @@ MapSectionNode* MapSectionNode::create(const int obstacleType,
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 string MapSectionNode::getFilenameForObstacleType(const int obstacleType) const {
-  const string msNames[4] = {
-    "bird/module01.png", "bird/module02.png", "bird/module03.png", "bird/module04.png"
+  const string msNames[5] = {
+    "bird/map07a.png", "bird/map08a.png", "bird/map09a.png", "bird/map10b.png",
+    "bird/map11a.png"
   };
 
   string result = msNames[0];
 
   switch(obstacleType) {
   case 7:
-    result = msNames[1];
+    result = msNames[0];
     break;
   case 8:
-    result = msNames[2];
+    result = msNames[1];
     break;
   case 9:
+    result = msNames[2];
+    break;
+  case 10:
     result = msNames[3];
+    break;
+  case 11:
+    result = msNames[4];
     break;
     // no default section here
   }
@@ -85,7 +92,7 @@ bool MapSectionNode::init(const int inObstacleType) {
     return false;
   }
 
-  setOpacity(20);
+  setOpacity(90);
 
   return true;
 }
