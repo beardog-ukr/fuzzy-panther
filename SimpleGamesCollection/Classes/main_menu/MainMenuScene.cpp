@@ -1,7 +1,9 @@
 #include "MainMenuScene.h"
 
 #include "asteroids/AsteroidsScene.h"
-#include "asteroids/GameEndScene.h"
+#include "bird/BirdMainScene.h"
+
+#include "bird/GameEndScene.h"
 
 #include "SixCatsLogger.h"
 #include "SixCatsLoggerMacro.h"
@@ -14,7 +16,9 @@ using namespace std;
 
 enum MenuCodeGame {
   MCG_Asteroids = 10,
-  MCG_Bird
+  MCG_Bird,
+  MCG_Blackjack
+
 };
 
 enum MenuCodeMain {
@@ -161,7 +165,7 @@ bool MainMenuScene::initNewGameMenu() {
   ccMenuCallback mcbs[itemsCount] = {
     CC_CALLBACK_1(MainMenuScene::mcSwitchToGame, this, MCG_Asteroids),
     CC_CALLBACK_1(MainMenuScene::mcSwitchToGame, this, MCG_Bird),
-    CC_CALLBACK_1(MainMenuScene::mcSwitchToGame, this, MCG_Asteroids),
+    CC_CALLBACK_1(MainMenuScene::mcSwitchToGame, this, MCG_Blackjack),
     CC_CALLBACK_1(MainMenuScene::mcSwitchToGame, this, MCG_Asteroids),
     CC_CALLBACK_1(MainMenuScene::mcSwitchToGame, this, MCG_Asteroids),
     // CC_CALLBACK_1(MainMenuScene::mcSwitchToGame, this, MCG_Asteroids),
@@ -289,8 +293,12 @@ void MainMenuScene::mcSwitchToGame(cocos2d::Ref *pSender, const int menuCode) {
     newScene = asteroids::AsteroidsScene::createScene();
   }
   else if (menuCode == MCG_Bird) {
-    newScene = asteroids::GameEndScene::createScene(true, c6);
+    newScene = bird::BirdMainScene::createScene(c6);
   }
+  else if (menuCode == MCG_Blackjack) {
+    newScene = bird::GameEndScene::createScene(true, c6);
+  }
+
   else {
     C6_C2(c6, "Bad Call ", menuCode);
   }

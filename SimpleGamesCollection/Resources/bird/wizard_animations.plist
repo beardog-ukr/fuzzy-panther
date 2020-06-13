@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+  <key>animations</key>
+  <dict>
+
+  <key>wizard_die</key>
+  <dict>
+    <key>delay</key>
+    <real>0.2</real>
+    <key>frames</key>
+    <array>
+      <string>wizard_death_00.png</string>
+      <string>wizard_death_01.png</string>
+      <string>wizard_death_02.png</string>
+      <string>wizard_death_03.png</string>
+      <string>wizard_death_04.png</string>
+      <string>wizard_death_05.png</string>
+      <string>wizard_death_06.png</string>
+      <string>wizard_death_07.png</string>
+      <string>wizard_death_08.png</string>
+      <string>wizard_death_09.png</string>
+    </array>
+  </dict>
+
+  <key>wizard_up</key>
+  <dict>
+    <key>delay</key>
+    <real>0.2</real>
+    <key>frames</key>
+    <array>
+      <string>wizard_fly_00.png</string>
+      <string>wizard_fly_01.png</string>
+      <string>wizard_fly_02.png</string>
+      <string>wizard_fly_03.png</string>
+      <string>wizard_fly_04.png</string>
+      <string>wizard_fly_05.png</string>
+    </array>
+  </dict>
+
+  <key>wizard_idle</key>
+  <dict>
+    <key>delay</key>
+    <real>0.2</real>
+    <key>frames</key>
+    <array>
+      <string>wizard_idle_00.png</string>
+      <string>wizard_idle_01.png</string>
+      <string>wizard_idle_02.png</string>
+      <string>wizard_idle_03.png</string>
+      <string>wizard_idle_04.png</string>
+      <string>wizard_idle_05.png</string>
+      <string>wizard_idle_06.png</string>
+      <string>wizard_idle_07.png</string>
+      <string>wizard_idle_08.png</string>
+      <string>wizard_idle_09.png</string>
+    </array>
+  </dict>
+
+</dict>
+</dict>
+</plist>
