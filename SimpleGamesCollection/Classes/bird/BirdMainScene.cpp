@@ -25,6 +25,9 @@ static const int mapSectionHeight = 576;
 static const float mapSectionMoveDuration = 3.0;
 static const int mapSectionsCount = 4;
 
+static const int sectionsForVictoryRequirement = 10;
+
+
 enum ActionTagsBirdMainScene {
   BMSAT_main =1
 };
@@ -32,20 +35,23 @@ enum ActionTagsBirdMainScene {
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 BirdMainScene::BirdMainScene() {
+  MapSectionNode::loadCached();
+  WizardNode::loadAnimations();
+
   mapSections.resize(mapSectionsCount+2);
   mapSectionPositions.resize(mapSectionsCount+2);
 
   obstacleLevelGeneratorArr = {8,7,8,10,11, 9};
   nextObstacleLevelGeneratorIdx = 0;
 
-  sectionsForVictoryRequirement = 15;
   sectionsPassedCounter = 0;
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 BirdMainScene::~BirdMainScene() {
-  C6_D1(c6, "here");
+  MapSectionNode::unloadCached();
+  WizardNode::unloadAnimations();
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -91,6 +97,7 @@ Scene* BirdMainScene::createScene(std::shared_ptr<SixCatsLogger> inC6) {
 void BirdMainScene::doOneTick() {
   sectionsPassedCounter++;
   if (sectionsPassedCounter >= sectionsForVictoryRequirement) {
+    stopBeforeGameOver();
     resetAfterGameOver(true);
     return;
   }
@@ -177,23 +184,6 @@ bool BirdMainScene::initBackground() {
   return true;
 }
 
-bool BirdMainScene::initBackgroundGame() {
-
-  const char filename[] = "bird/visible_area.png";
-  Sprite* sprite = Sprite::create(filename);
-  if (sprite == nullptr) {
-    C6_C2(c6, "Error while loading: ", filename);
-    return false;
-  }
-
-  sprite->setAnchorPoint(Vec2(0.5,0.5));
-  const Size cs = getContentSize();
-  sprite->setPosition(cs.width/2, cs.height/2);
-  addChild(sprite, ZO_scene_background);
-
-  return true;
-}
-
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 bool BirdMainScene::initBackgroundBorder() {
@@ -276,6 +266,24 @@ bool BirdMainScene::initBackgroundBorder() {
   return true;
 }
 
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+bool BirdMainScene::initBackgroundGame() {
+
+  const char filename[] = "bird/map_background.png";
+  mapBackgroundSprite = Sprite::create(filename);
+  if (mapBackgroundSprite == nullptr) {
+    C6_C2(c6, "Error while loading: ", filename);
+    return false;
+  }
+
+  mapBackgroundSprite->setAnchorPoint(Vec2(0,0));
+  resetGameBackgroundPosition();
+
+  addChild(mapBackgroundSprite, ZO_scene_background);
+
+  return true;
+}
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
@@ -336,14 +344,7 @@ bool BirdMainScene::initWizard() {
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 bool BirdMainScene::onContactBegin(PhysicsContact& contact) {
-  for (int i = 0; i<(mapSectionsCount+2); i++) {
-    if (mapSections[i]==nullptr) {
-      continue;
-    }
-    mapSections[i]->stopAllActions();
-  }
-
-  stopAllActionsByTag(BMSAT_main);
+  stopBeforeGameOver();
 
   CallFunc *cf = CallFunc::create([this]() {
     this->resetAfterGameOver(false);
@@ -395,11 +396,23 @@ void BirdMainScene::resetAfterGameOver(const bool gameResult) {
   wizardNode->removeFromParentAndCleanup(true);
   nextObstacleLevelGeneratorIdx = 0;
   sectionsPassedCounter = 0;
+  resetGameBackgroundPosition();
 
   // --- sceate active elements again and start
   initModules();
   initWizard();
   startGame();
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+void BirdMainScene::resetGameBackgroundPosition() {
+  const Size cs = getContentSize();
+  Vec2 basePos;
+  basePos.x = cs.width/2 - gameWindowWidth/2;
+  basePos.y = (cs.height - gameWindowHeight)/2;
+
+  mapBackgroundSprite->setPosition(basePos);  //
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -414,6 +427,33 @@ void BirdMainScene::startGame() {
   runAction(ra);
 
   wizardNode->start();//
+  startMoveGameBackground();
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+void BirdMainScene::startMoveGameBackground() {
+  const Size mgbSize = mapBackgroundSprite->getContentSize();
+
+  const float duration = sectionsForVictoryRequirement*mapSectionMoveDuration;
+  MoveBy* mba = MoveBy::create(duration, Vec2(0 - (mgbSize.width - gameWindowWidth), 0));
+
+  mapBackgroundSprite->runAction(mba);
+  //
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+void BirdMainScene::stopBeforeGameOver() {
+  for (int i = 0; i<(mapSectionsCount+2); i++) {
+    if (mapSections[i]==nullptr) {
+      continue;
+    }
+    mapSections[i]->stopAllActions();
+  }
+
+  stopAllActionsByTag(BMSAT_main);
+  mapBackgroundSprite->stopAllActions();
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .

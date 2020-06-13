@@ -84,7 +84,7 @@ bool GameEndScene::initBackground() {
   backgroundNode->setPosition(0,0);
   addChild(backgroundNode);//, ZO_scene_background);
 
-  const char filename[] = "bird/visible_area.png";
+  const char filename[] = "bird/bird_game_end.png";
   Sprite* sprite = Sprite::create(filename);
   if (sprite == nullptr) {
     C6_C2(c6, "Error while loading: ", filename);

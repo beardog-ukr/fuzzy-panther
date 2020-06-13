@@ -28,6 +28,8 @@ protected:
 
   bool initKeyboardProcessing();
   bool initModules();
+
+  WizardNode* wizardNode;
   bool initWizard();
 
   MapSectionNode* addNewMapSection(const cocos2d::Vec2& position);
@@ -41,14 +43,16 @@ protected:
   int nextObstacleLevelGeneratorIdx;
   int getNextObstacleLevel();
 
-  WizardNode* wizardNode;
+  cocos2d::Sprite* mapBackgroundSprite;
+  void startMoveGameBackground();
+  void resetGameBackgroundPosition();
 
+  void stopBeforeGameOver();
   void resetAfterGameOver(const bool gameResult);
 
   bool onContactBegin(cocos2d::PhysicsContact& contact);
   void onKeyPressedScene(cocos2d::EventKeyboard::KeyCode keyCode, cocos2d::Event *);
 
-  int sectionsForVictoryRequirement;
   int sectionsPassedCounter;
 };
 

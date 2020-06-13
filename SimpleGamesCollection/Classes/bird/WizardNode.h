@@ -16,6 +16,9 @@ public:
 
   void start();
 
+  static bool loadAnimations();
+  static bool unloadAnimations();
+
 protected:
   WizardNode();
   virtual ~WizardNode();

@@ -13,11 +13,16 @@ static const float downStepDuration = 0.5; // time to go down for one step
 static const float upStepDuration = 0.5; //
 static const int stepSize = 32;
 
+static const string framesPlistFN = "bird/wizard.plist";
+static const string animationsPlistFN = "bird/wizard_animations.plist";
+
+static const string animationNameUp = "wizard_up";
+static const string animationNameDie = "wizard_die";
+static const string animationNameDown = "wizard_idle";
 
 enum ActionTagsWizardNode {
-  // WNAT_up,
-  // WNAT_down,
-  WNAT_vertical_move
+  WNAT_vertical_move,
+  WNAT_up_anim
 };
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -56,8 +61,11 @@ WizardNode* WizardNode::create(std::shared_ptr<SixCatsLogger> inc6) {
 
 void WizardNode::doDie(cocos2d::CallFunc *cf ) {
   stopAllActionsByTag(WNAT_vertical_move);
-  DelayTime* dt = DelayTime::create(3.0);
-  Sequence* seq = Sequence::create(dt, cf, nullptr);
+
+  Animation* animation = AnimationCache::getInstance()->getAnimation(animationNameDie);
+  Animate* animate = Animate::create(animation);
+
+  Sequence* seq = Sequence::create(animate, cf, nullptr);
   runAction(seq);
 }
 
@@ -77,8 +85,20 @@ void WizardNode::doGoUp() {
   stopAllActionsByTag(WNAT_vertical_move);
 
   ActionInterval* actionDown = prepareDownAction();
+
+  Animation* animationDown = AnimationCache::getInstance()->getAnimation(animationNameDown);
+  Animate* animateDown = Animate::create(animationDown);
+  animateDown->setDuration(actionDown->getDuration());
+  Spawn* spawnDown = Spawn::createWithTwoActions(animateDown, actionDown);
+
   ActionInterval* actionUp = prepareUpAction();
-  Sequence* seq = Sequence::create(actionUp, actionDown, nullptr);
+
+  Animation* animationUp = AnimationCache::getInstance()->getAnimation(animationNameUp);
+  Animate* animateUp = Animate::create(animationUp);
+  animateUp->setDuration(actionUp->getDuration());
+  Spawn* spawnUp = Spawn::createWithTwoActions(animateUp, actionUp);
+
+  Sequence* seq = Sequence::create(spawnUp, spawnDown, nullptr);
   seq->setTag(WNAT_vertical_move);
 
   runAction(seq);
@@ -87,12 +107,7 @@ void WizardNode::doGoUp() {
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 bool WizardNode::init() {
-  const string fn = "bird/wizard_idle_00.png";
-  // const string fn = "bird/wizard_fly_04.png";
-  if (!initWithFile(fn)) {
-    C6_C2(c6, "Failed to init with file ", fn);
-    return false;    //
-  }
+  initWithSpriteFrameName("wizard_idle_00.png");
 
   if (!initPhysicsBody()) {
     return false;
@@ -106,7 +121,7 @@ bool WizardNode::init() {
 bool WizardNode::initPhysicsBody() {
   Vec2 points[8] = {
     {.x =  0, .y = 25},
-    {.x = 15, .y = 20},
+    {.x = 11, .y = 20},
     {.x = 20, .y = 0},
     {.x = 15, .y = -15},
     {.x = 0, .y = -20},
@@ -123,6 +138,22 @@ bool WizardNode::initPhysicsBody() {
   physicsBody->setContactTestBitmask(0xFFFFFFFF);
 
   addComponent(physicsBody);
+
+  return true;
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+bool WizardNode::loadAnimations() {
+  SpriteFrameCache* const sfc = SpriteFrameCache::getInstance();
+
+  sfc->addSpriteFramesWithFile(framesPlistFN);
+  if (!sfc->isSpriteFramesWithFileLoaded(framesPlistFN)) {
+    return false;
+  }
+
+  AnimationCache * const ac = AnimationCache::getInstance();
+  ac->addAnimationsWithFile(animationsPlistFN);
 
   return true;
 }
@@ -168,6 +199,18 @@ ActionInterval* WizardNode::prepareUpAction() const {
   // ea->setTag(WNAT_vertical_move);
 
   return ea;
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+bool WizardNode::unloadAnimations() {
+
+  AnimationCache * const ac = AnimationCache::getInstance();
+  ac->removeAnimation(animationNameUp);
+  ac->removeAnimation(animationNameDown);
+  ac->removeAnimation(animationNameDie);
+
+  SpriteFrameCache::getInstance()->removeSpriteFramesFromFile(framesPlistFN);
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .

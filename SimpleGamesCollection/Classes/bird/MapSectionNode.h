@@ -12,6 +12,10 @@ public:
 
   static MapSectionNode* create(const int obstacleType, std::shared_ptr<SixCatsLogger> c6);
 
+  static bool loadCached();
+  static void unloadCached();
+
+
 protected:
   MapSectionNode();
   virtual ~MapSectionNode();

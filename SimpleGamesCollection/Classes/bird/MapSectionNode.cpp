@@ -11,6 +11,8 @@ using namespace std;
 using namespace bird;
 static int objectIdGenerator = 0;
 
+static const string mapImagesPlistFN = "bird/maps.plist";
+
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 MapSectionNode::MapSectionNode() {
@@ -49,8 +51,8 @@ MapSectionNode* MapSectionNode::create(const int obstacleType,
 
 string MapSectionNode::getFilenameForObstacleType(const int obstacleType) const {
   const string msNames[5] = {
-    "bird/map07a.png", "bird/map08a.png", "bird/map09a.png", "bird/map10b.png",
-    "bird/map11a.png"
+    "bird_map07a.png", "bird_map08a.png", "bird_map09a.png", "bird_map10b.png",
+    "bird_map11a.png"
   };
 
   string result = msNames[0];
@@ -82,9 +84,9 @@ string MapSectionNode::getFilenameForObstacleType(const int obstacleType) const 
 bool MapSectionNode::init(const int inObstacleType) {
   obstacleType = inObstacleType;
 
-  const string fn = getFilenameForObstacleType(obstacleType);
-  if (!initWithFile(fn)) {
-    C6_C2(c6, "Failed to init with file ", fn);
+  const string sfn = getFilenameForObstacleType(obstacleType);
+  if (!initWithSpriteFrameName(sfn)) {
+    C6_C2(c6, "Failed to init with file ", sfn);
     return false;    //
   }
 
@@ -189,6 +191,25 @@ bool MapSectionNode::initPhysicsBody() {
   }
 
   return true;
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+bool MapSectionNode::loadCached() {
+  SpriteFrameCache* const sfc = SpriteFrameCache::getInstance();
+
+  sfc->addSpriteFramesWithFile(mapImagesPlistFN);
+  if (!sfc->isSpriteFramesWithFileLoaded(mapImagesPlistFN)) {
+    return false;
+  }
+  //
+  return true;
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+void MapSectionNode::unloadCached() {
+  SpriteFrameCache::getInstance()->removeSpriteFramesFromFile(mapImagesPlistFN);
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
