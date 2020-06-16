@@ -1,7 +1,6 @@
 #pragma once
 
 #include <memory>
-// #include <vector>
 #include "cocos2d.h"
 #include "SixCatsLoggerLoggable.h"
 
@@ -30,14 +29,27 @@ protected:
 
   void startGame();
 
+  void continueGameUsual();
+  void continueGameBust();
+  void finishGameBust();
+
   BlackboardNode* blackboardNode;
   GameTableNode* gameTableNode;
 
   cocos2d::Node* prepareMainMenuButton();
+  cocos2d::Node* prepareReplayButton();
 
   void mcBackToMain(cocos2d::Ref *pSender);
   void mcHit(cocos2d::Ref *pSender);
   void mcStand(cocos2d::Ref *pSender);
+  void mcReplay(cocos2d::Ref *pSender);
+
+  Node* replayButton;
+  Node* hitButton;
+  Node* standButton;
+
+
+  bool ignoreHitStandButtons;
 
   void onKeyPressedScene(cocos2d::EventKeyboard::KeyCode keyCode, cocos2d::Event *);
 

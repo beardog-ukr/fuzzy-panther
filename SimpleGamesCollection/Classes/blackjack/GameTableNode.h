@@ -17,7 +17,9 @@ public:
   float dealToDealer(const std::string& cardName);
   float dealToPlayer(const std::string& cardName);
 
-  float revealFirst(const std::string& cardName);
+  float revealFirst();
+
+  void reset();
 
 protected:
   GameTableNode();
@@ -33,6 +35,7 @@ protected:
 
   int dealerCardsCount;
   std::list<Node*> dealerCards;
+  std::string hiddenCardName;
   float dealerRowPosition;
   std::vector<float> dealerCardPositions;
 
@@ -41,14 +44,9 @@ protected:
   float playerRowPosition;
   std::vector<float> playerCardPositions;
 
-
-
-  // cocos2d::Size expectedContentSize;
-
   cocos2d::Vec2 cardFlyStartPosition;
 
   cocos2d::Node* createCard(const std::string& cardName);
-  // cocos2d::Node* addCard(const cocos2d::Vec2& position);
 
   float cardScaleFactor;
 };

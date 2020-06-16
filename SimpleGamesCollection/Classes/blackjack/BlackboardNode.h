@@ -15,6 +15,10 @@ public:
   void setDealerCount(const int count);
   void setPlayerCount(const int count);
 
+  void showGameResult(const int dealerCount, const int playerCount);
+
+  void reset();
+
 protected:
   BlackboardNode();
   virtual ~BlackboardNode();
@@ -23,6 +27,7 @@ protected:
   bool initBoardImage();
   bool initLabels();
 
+  bool showDealerCount;
 
   cocos2d::Label* dealerLabel;
   cocos2d::Label* playerLabel;

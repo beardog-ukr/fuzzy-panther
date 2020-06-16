@@ -12,36 +12,42 @@ using namespace blackjack;
 
 USING_NS_CC;
 using namespace std;
-#include <cmath>
-
-
-
-// static const int gameWindowWidth = 640;
-// static const int gameWindowHeight = 576;
-
-// static const int mapSectionWidth = 192;
-// static const int mapSectionHeight = 576;
-
-// static const float mapSectionMoveDuration = 3.0;
-// static const int mapSectionsCount = 4;
-
-// static const int sectionsForVictoryRequirement = 10;
-
-
-// enum ActionTagsBirdMainScene {
-//   BMSAT_main =1
-// };
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 BlackjackMainScene::BlackjackMainScene() {
-
+  ignoreHitStandButtons = false;
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 BlackjackMainScene::~BlackjackMainScene() {
   GameStateKeeper::unloadCardsFromCache();
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+void BlackjackMainScene::continueGameUsual() {
+  // C6_D1(c6, "Continue as usual");
+  ignoreHitStandButtons = false;
+  blackboardNode->setPlayerCount(gameStateKeeper->getPlayerCount());
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+void BlackjackMainScene::continueGameBust() {
+  blackboardNode->setPlayerCount(gameStateKeeper->getPlayerCount());
+
+  list<string> additionalDealerCards = gameStateKeeper->prepareFullDealer();
+  for (const string cn: additionalDealerCards) {
+    gameTableNode->dealToDealer(cn);
+  }
+
+  float delayValue = gameTableNode->revealFirst();
+
+  DelayTime* dt = DelayTime::create(delayValue);
+  CallFunc* cf = CallFunc::create(CC_CALLBACK_0(BlackjackMainScene::finishGameBust, this));
+  Sequence* seq = Sequence::create(dt, cf, nullptr);
+  runAction(seq);
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -68,6 +74,21 @@ Scene* BlackjackMainScene::createScene(std::shared_ptr<SixCatsLogger> inC6) {
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
+void BlackjackMainScene::finishGameBust() {
+  C6_D1(c6, "Continue as usual");
+  const int dc = gameStateKeeper->getDealerCount();
+  blackboardNode->setDealerCount(dc);
+
+  const int pc = gameStateKeeper->getPlayerCount();
+  blackboardNode->showGameResult(dc, pc);
+
+  hitButton->setVisible(false);
+  standButton->setVisible(false);
+  replayButton->setVisible(true);
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
 bool BlackjackMainScene::init() {
   //////////////////////////////
   // 1. super init first
@@ -87,15 +108,18 @@ bool BlackjackMainScene::init() {
     return false;
   }
 
+  if (!initGameStateKeeper()) {
+    C6_D1(c6, "Failed to create game state keeper");
+    return false;
+  }
+
   if (!initGameTable()) {
+    C6_D1(c6, "Failed to create game table");
     return false;
   }
 
   if (!initKeyboardProcessing()) {
-    return false;
-  }
-
-  if (!initGameStateKeeper()) {
+    C6_D1(c6, "Failed to init kb processing");
     return false;
   }
 
@@ -128,6 +152,9 @@ bool BlackjackMainScene::initBoard() {
 
   blackboardNode->setAnchorPoint(Vec2(1, 1));
   blackboardNode->setPosition(cs.width, cs.height);
+
+  blackboardNode->setScale( (cs.width/3) / blackboardNode->getContentSize().width );
+
   addChild(blackboardNode, ZO_scene_elements);
 
   return true;
@@ -156,8 +183,12 @@ bool BlackjackMainScene::initGameStateKeeper() {
   gameStateKeeper = make_unique<GameStateKeeper>();
   gameStateKeeper->setLogger(c6);
 
-  GameStateKeeper::loadCardsToCache();
+  if (!GameStateKeeper::loadCardsToCache()) {
+    C6_D1(c6, "Failed to load: cards to cache");
+    return false;
+  }
 
+  return true;
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -189,12 +220,9 @@ bool BlackjackMainScene::initMenu() {
     {.x = (currentWindowSize.width/8)*3, .y = currentWindowSize.height/6}
   };
 
-  for (int i = 0; i< itemsCount; i++) {
-    // MenuItemImage* item = MenuItemImage::create();
-    // item->setNormalSpriteFrame(sfc->getSpriteFrameByName("menu_panel_main.png"));
-    // item->setSelectedSpriteFrame(sfc->getSpriteFrameByName("menu_panel_sec.png"));
-    // item->setCallback(mcbs[i]);
+  Node* resultButtons[itemsCount];
 
+  for (int i = 0; i< itemsCount; i++) {
     MenuItemImage* item = MenuItemImage::create(
       "blackjack/menu_panel_short_main.png", "blackjack/menu_panel_short_sec.png", mcbs[i]);
 
@@ -209,9 +237,15 @@ bool BlackjackMainScene::initMenu() {
     item->addChild(label);
 
     menu->addChild(item);
+
+    resultButtons[i] = item;
   }
 
+  hitButton = resultButtons[0];
+  standButton = resultButtons[1];
+
   menu->addChild(prepareMainMenuButton());
+  menu->addChild(prepareReplayButton());
 
   menu->setPosition(Vec2::ZERO);
 
@@ -246,6 +280,37 @@ Node* BlackjackMainScene::prepareMainMenuButton() {
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
+Node* BlackjackMainScene::prepareReplayButton() {
+  SpriteFrameCache* const sfc = SpriteFrameCache::getInstance();
+  MenuItemImage* item = MenuItemImage::create();
+  item->setNormalSpriteFrame(sfc->getSpriteFrameByName("menu_panel_main.png"));
+  item->setSelectedSpriteFrame(sfc->getSpriteFrameByName("menu_panel_sec.png"));
+  item->setCallback(CC_CALLBACK_1(BlackjackMainScene::mcReplay, this));
+
+  // MenuItemImage* item = MenuItemImage::create(
+  //   "blackjack/menu_panel_short_main.png", "blackjack/menu_panel_short_sec.png",
+  //   CC_CALLBACK_1(BlackjackMainScene::mcReplay, this));
+
+  const Size currentWindowSize = getContentSize();
+  item->setPosition( {.x = (currentWindowSize.width/8)*2, .y = currentWindowSize.height/6});
+
+  const Size itemSize = item->getContentSize();
+  item->setAnchorPoint(Vec2(0.5,0.5));
+
+  Label* label = Label::createWithTTF("Replay", "fonts/Marker Felt.ttf", 32);
+  label->setTextColor(Color4B(160,82,45,255));
+  label->setAnchorPoint(Vec2(0.5,0.5));
+  label->setPosition(itemSize.width/2, itemSize.height/2);
+  item->addChild(label);
+
+  item->setVisible(false);
+  replayButton = item;
+
+  return item;
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
 void BlackjackMainScene::onKeyPressedScene(EventKeyboard::KeyCode keyCode, Event *) {
   C6_D3(c6, "Key '", (int)keyCode, "' was pressed");
 
@@ -269,13 +334,63 @@ void BlackjackMainScene::mcBackToMain(cocos2d::Ref *pSender) {
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 void BlackjackMainScene::mcHit(cocos2d::Ref *pSender) {
-  gameTableNode->dealToPlayer("sss");
+  if (ignoreHitStandButtons) {
+    C6_T1(c6, "Ignore mcHit");
+    return;
+  }
+
+  ignoreHitStandButtons = true;
+
+  string cardName = gameStateKeeper->hit();
+  const float delayValue = gameTableNode->dealToPlayer(cardName);
+
+  DelayTime* dt = DelayTime::create(delayValue);
+
+
+  CallFunc* cf;
+  if (gameStateKeeper->playerGotBust()) {
+    C6_D1(c6, "player failed");
+    cf = CallFunc::create(CC_CALLBACK_0(BlackjackMainScene::continueGameBust, this));
+  }
+  else {
+    cf = CallFunc::create(CC_CALLBACK_0(BlackjackMainScene::continueGameUsual, this));
+  }
+
+  Sequence* seq = Sequence::create(dt, cf, nullptr);
+  runAction(seq);
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+void BlackjackMainScene::mcReplay(cocos2d::Ref *pSender) {
+  hitButton->setVisible(true);
+  standButton->setVisible(true);
+  replayButton->setVisible(false);
+
+  gameTableNode->reset();
+  blackboardNode->reset();
+  gameStateKeeper->reset();
+
+  ignoreHitStandButtons = false;
+
+  startGame();
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 void BlackjackMainScene::mcStand(cocos2d::Ref *pSender) {
-  gameTableNode->revealFirst("zzz");
+  C6_D1(c6, "here");
+  list<string> additionalDealerCards = gameStateKeeper->prepareFullDealer();
+  for (const string cn: additionalDealerCards) {
+    gameTableNode->dealToDealer(cn);
+  }
+
+  float delayValue = gameTableNode->revealFirst();
+
+  DelayTime* dt = DelayTime::create(delayValue);
+  CallFunc* cf = CallFunc::create(CC_CALLBACK_0(BlackjackMainScene::finishGameBust, this));
+  Sequence* seq = Sequence::create(dt, cf, nullptr);
+  runAction(seq);
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -298,7 +413,6 @@ void BlackjackMainScene::startGame() {
   gameTableNode->dealToPlayer(initialCards.front());
   initialCards.pop_front();
 
-  blackboardNode->setDealerCount(gameStateKeeper->getDealerCount());
   blackboardNode->setPlayerCount(gameStateKeeper->getPlayerCount());
 }
 

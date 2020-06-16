@@ -14,6 +14,8 @@ using namespace std;
 
 static const float cardFlyDuration = 1.0;
 
+static const string closedCardFrameName = "blackjack/CardBack1.png";
+
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 GameTableNode::GameTableNode() : cardScaleFactor(1.0) {
@@ -83,6 +85,12 @@ void GameTableNode::repositionCards(list<Node*>& cards,
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 float GameTableNode::dealToDealer(const std::string& cardName) {
+  string correctedCardName = cardName;
+  if (dealerCardsCount==0) {
+    correctedCardName = closedCardFrameName;
+    hiddenCardName = cardName;
+  }
+
   dealerCardsCount++;
   if (dealerCardsCount>dealerCardPositions.size()) {
     C6_D2(c6, "Need to reevaluate dealers positions: ", dealerCardsCount);
@@ -90,21 +98,17 @@ float GameTableNode::dealToDealer(const std::string& cardName) {
     repositionCards(dealerCards, dealerCardPositions, dealerRowPosition);
   }
 
-  Node* newCard = createCard(cardName);
+  Node* newCard = createCard(correctedCardName);
   if (newCard==nullptr) {
     return 0;
   }
   newCard->setPosition(cardFlyStartPosition);
 
-  const Vec2 newCardPos = {.x = dealerCardPositions[dealerCardsCount-1],  .y = dealerRowPosition};
+  const Vec2 newCardPos = {.x = dealerCardPositions[dealerCardsCount-1], .y = dealerRowPosition};
   MoveTo* mta = MoveTo::create(cardFlyDuration,newCardPos);
   newCard->runAction(mta);
 
-
-  // Node* ncn = addCard(newCardPos);
-  // if (ncn != nullptr) {
   dealerCards.push_back(newCard);
-  // }
 
   return cardFlyDuration;
 }
@@ -147,7 +151,6 @@ float GameTableNode::dealToPlayer(const std::string& cardName) {
 
 bool GameTableNode::initSelf(const cocos2d::Size& expectedSize) {
   setContentSize(expectedSize);
-  // expectedContentSize = expectedSize;
 
   dealerRowPosition = (expectedSize.height/4)*3;
   calculateCardsPositions(dealerCardPositions, dealerRowPosition, 4);
@@ -168,11 +171,12 @@ bool GameTableNode::initSelf(const cocos2d::Size& expectedSize) {
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 bool GameTableNode::initScaleFactor() {
-  const char fn[] = "blackjack/CardBack2.png";
-  Sprite* sprite;
-  sprite = Sprite::create(fn);
+  // const char fn[] = "blackjack/CardBack1.png";
+  Sprite* sprite = Sprite::createWithSpriteFrameName(closedCardFrameName);
+  // Sprite* sprite;
+  // sprite = Sprite::create(fn);
   if (sprite == nullptr) {
-    C6_C2(c6, "Error while loading: ", fn);
+    C6_C2(c6, "Error while loading: ", closedCardFrameName);
     return false;
   }
 
@@ -212,8 +216,26 @@ Node* GameTableNode::createCard(const string& cardName) {
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-float GameTableNode::revealFirst(const std::string& cardName) {
-  Node* revealedCard = createCard(cardName);
+void GameTableNode::reset() {
+  dealerCardsCount = 0;
+  hiddenCardName = "";
+  dealerCards.clear();
+  dealerCardPositions.resize(0);
+  calculateCardsPositions(dealerCardPositions, dealerRowPosition, 4);
+
+  playerCardsCount = 0;
+  playerCards.clear();
+  playerCardPositions.resize(0);
+  calculateCardsPositions(playerCardPositions, playerRowPosition, 4);
+
+  removeAllChildrenWithCleanup(true);
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+
+float GameTableNode::revealFirst() {
+  Node* revealedCard = createCard(hiddenCardName);
   if (revealedCard == nullptr) {
     return cardFlyDuration;
   }
