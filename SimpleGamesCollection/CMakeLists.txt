@@ -46,6 +46,10 @@ list(APPEND GAME_SOURCE
      Classes/bird/GameEndScene.cpp
      Classes/bird/MapSectionNode.cpp
      Classes/bird/WizardNode.cpp
+     Classes/blackjack/GameTableNode.cpp
+     Classes/blackjack/BlackboardNode.cpp
+     Classes/blackjack/BlackjackMainScene.cpp
+     Classes/blackjack/GameStateKeeper.cpp
      Classes/main_menu/BackgroundNode.cpp
      Classes/main_menu/MainMenuScene.cpp
      )
@@ -63,6 +67,11 @@ list(APPEND GAME_HEADER
      Classes/bird/CommonUtils.h
      Classes/bird/MapSectionNode.h
      Classes/bird/WizardNode.h
+     Classes/blackjack/GameTableNode.h
+     Classes/blackjack/BlackboardNode.h
+     Classes/blackjack/BlackjackCommonUtils.h
+     Classes/blackjack/BlackjackMainScene.h
+     Classes/blackjack/GameStateKeeper.h
      Classes/main_menu/BackgroundNode.h
      Classes/main_menu/MainMenuScene.h
      )
