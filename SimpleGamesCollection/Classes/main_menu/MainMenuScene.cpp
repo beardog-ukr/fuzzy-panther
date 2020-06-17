@@ -3,6 +3,7 @@
 #include "asteroids/AsteroidsScene.h"
 #include "bird/BirdMainScene.h"
 #include "blackjack/BlackjackMainScene.h"
+#include "blocks/BlocksMainScene.h"
 
 #include "SixCatsLogger.h"
 #include "SixCatsLoggerMacro.h"
@@ -298,6 +299,10 @@ void MainMenuScene::mcSwitchToGame(cocos2d::Ref *pSender, const int menuCode) {
   else if (menuCode == MCG_Blackjack) {
     newScene = blackjack::BlackjackMainScene::createScene(c6);
   }
+  else if (menuCode == MCG_Blocks) {
+    newScene = blocks::BlocksMainScene::createScene(c6);
+  }
+
 
   else {
     C6_C2(c6, "Bad Call ", menuCode);

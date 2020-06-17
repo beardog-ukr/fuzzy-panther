@@ -50,6 +50,10 @@ list(APPEND GAME_SOURCE
      Classes/blackjack/BlackboardNode.cpp
      Classes/blackjack/BlackjackMainScene.cpp
      Classes/blackjack/GameStateKeeper.cpp
+     Classes/blocks/BlocksMainScene.cpp
+     Classes/blocks/BlocksGameNode.cpp
+     Classes/blocks/FigureInfo.cpp
+     Classes/blocks/FigureFactory.cpp
      Classes/main_menu/BackgroundNode.cpp
      Classes/main_menu/MainMenuScene.cpp
      )
@@ -72,6 +76,12 @@ list(APPEND GAME_HEADER
      Classes/blackjack/BlackjackCommonUtils.h
      Classes/blackjack/BlackjackMainScene.h
      Classes/blackjack/GameStateKeeper.h
+     Classes/blocks/BlocksMainScene.h
+     Classes/blocks/BlocksGameNode.h
+     Classes/blocks/BrickInfo.h
+     Classes/blocks/CommonUtils.h
+     Classes/blocks/FigureInfo.h
+     Classes/blocks/FigureFactory.h
      Classes/main_menu/BackgroundNode.h
      Classes/main_menu/MainMenuScene.h
      )
