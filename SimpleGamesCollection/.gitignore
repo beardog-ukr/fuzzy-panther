@@ -2,3 +2,10 @@
 /linux-build
 /bin
 /cocos2d
+qtc*.cflags
+qtc*.config
+qtc*.creator
+qtc*.creator.user
+qtc*.cxxflags
+qtc*.files
+qtc*.includes
