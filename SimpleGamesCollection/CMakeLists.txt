@@ -54,6 +54,7 @@ list(APPEND GAME_SOURCE
      Classes/blocks/BlocksGameNode.cpp
      Classes/blocks/FigureInfo.cpp
      Classes/blocks/FigureFactory.cpp
+     Classes/blocks/WallInfo.cpp
      Classes/main_menu/BackgroundNode.cpp
      Classes/main_menu/MainMenuScene.cpp
      )
@@ -82,6 +83,7 @@ list(APPEND GAME_HEADER
      Classes/blocks/CommonUtils.h
      Classes/blocks/FigureInfo.h
      Classes/blocks/FigureFactory.h
+     Classes/blocks/WallInfo.h
      Classes/main_menu/BackgroundNode.h
      Classes/main_menu/MainMenuScene.h
      )

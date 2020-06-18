@@ -3,13 +3,15 @@
 namespace blocks {
 
 enum ZOrderValues {
-  ZO_scene_background = 10,
+  kSceneBackgroundZOrder = 10,
 
-  ZO_game_background = 20,
+  kGameBackgroundZOrder = 20,
 
-  ZO_bricks,
+  kBricksZOrder,
 
-  ZO_scene_border = 60,
+  kFailMenuElementsZOrder,
+
+  kSceneBorderZOrder,
 };
 
 

@@ -22,6 +22,7 @@ public:
   static void unloadCached();
 
   float prepareNextIteration();
+  bool gameIsOver() const;
 
   void doRotateFigure();
   void doMoveFigureLeft();
@@ -44,6 +45,8 @@ protected:
 
   FigureInfo* figure;
   std::unique_ptr<WallInfo> wall;
+
+  bool gameOver;
 
   std::unique_ptr<FigureFactory> figureFactory;
 };

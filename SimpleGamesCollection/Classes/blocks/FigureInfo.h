@@ -17,14 +17,19 @@ public:
   FigureInfo();
   ~FigureInfo();
 
-//  void setBaseRow(const int newBaseRow);
-
-  void addInitialBrick(const BrickInfo& initialBrick);
+  void addInitialBrick(const int rotationIndex, const BrickInfo& initialBrick);
+  void setRotationsAmount(const int rotationsAmount);
 
   void addSelfToNode(cocos2d::Node* newParentNode);
 
   bool canDoMove(const MoveType mt, const std::unique_ptr<WallInfo> &wall);
   float doMove(const MoveType mt);
+
+  bool canDoRotate(const std::unique_ptr<WallInfo> &wall);
+  float doRotate();
+
+  void accumulateMoveDown();
+  float useAccumulatedMoveDown();
 
   std::list<BrickInfo> getBricks();
 
@@ -33,28 +38,17 @@ protected:
 
   bool verifyBricksSides(const std::list<BrickInfo>& movedBricks);
   std::list<BrickInfo> prepareMovedBricks(const MoveType mt);
+  std::list<BrickInfo> prepareRotatedBricks(const int newRotationIndex);
 
   std::list<BrickInfo> bricks;
+
+  int accumulatedXdiff;
+  int accumulatedYdiff;
+
+  cocos2d::Node* parentNode;
+  int rotationIndex;
+  int rotationsAmount;
+  std::list<BrickInfo> rotationTemplates[4];
 };
-
-class WallInfo final : virtual public SixCatsLoggerLoggable {
-public:
-  WallInfo();
-  ~WallInfo();
-
-  bool intersects(const std::list<BrickInfo>& anotherBricks);
-
-  float removeFullRows();
-  void consume(const std::list<BrickInfo>& anotherBricks);
-
-  void addSelfToNode(cocos2d::Node* newParentNode);
-  void addInitialBrick(const BrickInfo& initialBrick);
-
-protected:
-  cocos2d::Node* createNode(const BrickInfo& brickInfo);
-
-  std::list<BrickInfo> bricks;
-};
-
 
 }

@@ -3,6 +3,7 @@
 #include "blocks/BrickInfo.h"
 #include "blocks/FigureFactory.h"
 #include "blocks/FigureInfo.h"
+#include "blocks/WallInfo.h"
 
 #include "SixCatsLogger.h"
 #include "SixCatsLoggerMacro.h"
@@ -15,17 +16,12 @@ using namespace blocks;
 
 static const float deletionDuration = 1.0;
 
-//static const string mapImagesPlistFN = "bird/maps.plist";
-
-//static const int tileSize = 64;
-//static const int gameColumnsCount = 10;
-
-
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 BlocksGameNode::BlocksGameNode() {
   figure = nullptr;
-  nextMoveType = MT_Down;
+  nextMoveType = kDown;
+  gameOver = false;
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -87,7 +83,8 @@ void BlocksGameNode::debugInitWall() {
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 void BlocksGameNode::doRotateFigure() {
-  //
+  C6_T1(c6, "here");
+  nextMoveType = MT_Rotate;
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -105,7 +102,13 @@ void BlocksGameNode::doMoveFigureRight() {
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 void BlocksGameNode::doDropFigure() {
-  //
+  nextMoveType = kDrop;
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+bool BlocksGameNode::gameIsOver() const {
+  return (wall->getHeight() >10);
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -150,26 +153,47 @@ bool BlocksGameNode::initWall() {
 
 float BlocksGameNode::prepareNextIteration() {
   if (figure == nullptr) {
-    figure = figureFactory->composeNewFigure(10);
+    figure = figureFactory->composeNewFigure(12);
     figure->addSelfToNode(this);
   }
 
-//  blocks::MoveType nextMoveType = MT_Down;
-
   float result = 0;
 
-  if (figure->canDoMove(nextMoveType, wall)) {
+  if (nextMoveType==MT_Rotate) {
+    if (figure->canDoRotate(wall)) {
+      result = figure->doRotate();
+    }
+  }
+  else if (nextMoveType == kDrop) {
+    bool doneSomeMove = false;
+    while (figure->canDoMove(kDown, wall)) {
+      figure->accumulateMoveDown();
+      doneSomeMove = true;
+    }
+
+    if (doneSomeMove) {
+      result = figure->useAccumulatedMoveDown();
+    }
+
+  }
+  else if (figure->canDoMove(nextMoveType, wall)) {
     result = figure->doMove(nextMoveType);
   }
-  else {
+
+  if ((result == 0)&&
+      ((nextMoveType == kDown)||(nextMoveType == kDrop))) {
     wall->consume(figure->getBricks());
     delete figure;
     figure = nullptr;
 
     result = wall->removeFullRows();
+
+//    gameOver = wall->isOver();
   }
 
-  nextMoveType = MT_Down;
+  nextMoveType = kDown;
+
+
 
   //debug stub:
 //  float result = 0;

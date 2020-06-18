@@ -8,7 +8,6 @@ namespace blocks {
 
 class BlocksGameNode;
 
-
 class BlocksMainScene : public cocos2d::Scene,
   virtual public SixCatsLoggerLoggable {
 public:
@@ -20,18 +19,20 @@ protected:
 
   bool init();
   bool initBackground();
-//  bool initBoard();
   bool initKeyboardProcessing();
-//  bool initMenu();
+  bool initFailMenu();
   bool initGameNode();
+
+  void mcBackToMain(cocos2d::Ref *pSender);
+  void mcTryAgain(cocos2d::Ref *pSender);
 
   void startGame();
   void doNextTick();
   BlocksGameNode* gameNode;
 
-  void onKeyPressedScene(cocos2d::EventKeyboard::KeyCode keyCode, cocos2d::Event *);
+  cocos2d::Menu* failMenu;
 
-//  std::unique_ptr<GameStateKeeper> gameStateKeeper;
+  void onKeyPressedScene(cocos2d::EventKeyboard::KeyCode keyCode, cocos2d::Event *);
 };
 
 }

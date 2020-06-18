@@ -64,9 +64,9 @@ bool BlocksMainScene::init() {
 //    return false;
 //  }
 
-//  if (!initMenu()) {
-//    return false;
-//  }
+  if (!initFailMenu()) {
+    return false;
+  }
 
 //  if (!initGameStateKeeper()) {
 //    C6_D1(c6, "Failed to create game state keeper");
@@ -99,7 +99,60 @@ bool BlocksMainScene::initBackground() {
 
   backgroundNode->setAnchorPoint(Vec2(0,0));
   backgroundNode->setPosition(0,0);
-  addChild(backgroundNode, ZO_scene_background);
+  addChild(backgroundNode, kSceneBackgroundZOrder);
+
+  return true;
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+bool BlocksMainScene::initFailMenu() {
+  SpriteFrameCache* const sfc = SpriteFrameCache::getInstance();
+  Menu* menu = Menu::create();
+
+  const int itemsCount = 2;
+  string captions[itemsCount] = {"Back to main menu", "Try again"};
+  ccMenuCallback mcbs[itemsCount] = {CC_CALLBACK_1(BlocksMainScene::mcBackToMain, this),
+                                     CC_CALLBACK_1(BlocksMainScene::mcTryAgain, this)
+  };
+
+  const Size currentWindowSize = getContentSize();
+
+  for (int i = 0; i< itemsCount; i++) {
+    MenuItemImage* item = MenuItemImage::create();
+    item->setNormalSpriteFrame(sfc->getSpriteFrameByName("menu_panel_main.png"));
+    item->setSelectedSpriteFrame(sfc->getSpriteFrameByName("menu_panel_sec.png"));
+    item->setCallback(mcbs[i]);
+
+    const Size itemSize = item->getContentSize();
+    C6_D4(c6, "One item size is ", itemSize.width, "x", itemSize.height);
+    Vec2 ip;
+    ip.x = itemSize.width + itemSize.height/2;
+    ip.x = currentWindowSize.width - (i+1)*ip.x;
+    ip.x = ip.x + itemSize.width/2;
+    ip.y = itemSize.height;
+
+    C6_D4(c6, "Will put menu item at ", ip.x, ":", ip.y);
+
+    item->setAnchorPoint(Vec2(0.5,0.5));
+    item->setPosition(ip);
+
+    Label* label = Label::createWithTTF(captions[i], "fonts/Marker Felt.ttf", 32);
+    label->setTextColor(Color4B(160,82,45,255));
+    label->setAnchorPoint(Vec2(0.5,0.5));
+    label->setPosition(itemSize.width/2, itemSize.height/2);
+    item->addChild(label);
+
+    menu->addChild(item);
+  }
+
+  menu->setPosition(Vec2::ZERO);
+
+  addChild(menu, kFailMenuElementsZOrder);
+
+  menu->setVisible(false);
+
+  failMenu = menu;
 
   return true;
 }
@@ -117,7 +170,7 @@ bool BlocksMainScene::initGameNode() {
   gameNode->setScale(desiredGameNodeHeight / gameNode->getContentSize().height);
 
   gameNode->setPosition(cs.width/2, cs.height/2);
-  addChild(gameNode, ZO_game_background);
+  addChild(gameNode, kGameBackgroundZOrder);
 
   return true;
 }
@@ -137,7 +190,23 @@ bool BlocksMainScene::initKeyboardProcessing() {
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
+void BlocksMainScene::mcBackToMain(cocos2d::Ref *pSender) {
+  Director::getInstance()->popToRootScene();
+}
+
+
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+void BlocksMainScene::mcTryAgain(cocos2d::Ref *pSender) {
+  gameNode->removeFromParentAndCleanup(true);
+  gameNode = nullptr;
+
+  failMenu->setVisible(false);
+
+  initGameNode();
+
+  startGame();
+}
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
@@ -187,6 +256,11 @@ void BlocksMainScene::doNextTick() {
 
   if (duration ==0) {
     C6_D1(c6, "bad logic");
+    return;
+  }
+
+  if (gameNode->gameIsOver()) {
+    failMenu->setVisible(true);
     return;
   }
 
