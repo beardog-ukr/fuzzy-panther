@@ -27,13 +27,12 @@ map<FigureType, FigureType> rotationVariants = {
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 FigureFactory::FigureFactory() {
-//  prepareRotationVariants()
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 FigureFactory::~FigureFactory() {
-  //
+  // ntdh
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -44,6 +43,7 @@ FigureInfo* FigureFactory::composeNewFigure(const int initialRow) {
 
   const FigureType baseFigureType = getNextRandomType();
   list<pair<int, int> > brickData = getNewFigureTemplate(baseFigureType);
+  list<string> brickImages = getNewFigureImages(baseFigureType);
 
   const int initialColumn = 3;
 
@@ -53,10 +53,20 @@ FigureInfo* FigureFactory::composeNewFigure(const int initialRow) {
   for (const auto& bd: brickData) {
     BrickInfo positionedBrick;
     positionedBrick.node = nullptr;
+
+    if (!brickImages.empty()) {
+      positionedBrick.fileName = brickImages.front();
+      brickImages.pop_front();
+    }
+    else {
+      positionedBrick.fileName = "";
+    }
+
     positionedBrick.gameX = bd.first + initialColumn;
     positionedBrick.gameY = bd.second + initialRow;
     result->addInitialBrick(0, positionedBrick);
   }
+
 
   FigureType figureType2 = baseFigureType;
   auto searchResult = rotationVariants.find(baseFigureType);
@@ -70,9 +80,19 @@ FigureInfo* FigureFactory::composeNewFigure(const int initialRow) {
 
   result->setRotationsAmount(2);
   brickData = getNewFigureTemplate(figureType2);
+  brickImages = getNewFigureImages(figureType2);
   for (const auto& bd: brickData) {
     BrickInfo positionedBrick;
     positionedBrick.node = nullptr;
+
+    if (!brickImages.empty()) {
+      positionedBrick.fileName = brickImages.front();
+      brickImages.pop_front();
+    }
+    else {
+      positionedBrick.fileName = "";
+    }
+
     positionedBrick.gameX = bd.first + initialColumn;
     positionedBrick.gameY = bd.second + initialRow;
     result->addInitialBrick(1, positionedBrick);
@@ -90,9 +110,19 @@ FigureInfo* FigureFactory::composeNewFigure(const int initialRow) {
 
   result->setRotationsAmount(3);
   brickData = getNewFigureTemplate(figureType3);
+  brickImages = getNewFigureImages(figureType3);
   for (const auto& bd: brickData) {
     BrickInfo positionedBrick;
     positionedBrick.node = nullptr;
+
+    if (!brickImages.empty()) {
+      positionedBrick.fileName = brickImages.front();
+      brickImages.pop_front();
+    }
+    else {
+      positionedBrick.fileName = "";
+    }
+
     positionedBrick.gameX = bd.first + initialColumn;
     positionedBrick.gameY = bd.second + initialRow;
     result->addInitialBrick(2, positionedBrick);
@@ -111,9 +141,19 @@ FigureInfo* FigureFactory::composeNewFigure(const int initialRow) {
 
   result->setRotationsAmount(4);
   brickData = getNewFigureTemplate(figureType4);
+  brickImages = getNewFigureImages(figureType4);
   for (const auto& bd: brickData) {
     BrickInfo positionedBrick;
     positionedBrick.node = nullptr;
+
+    if (!brickImages.empty()) {
+      positionedBrick.fileName = brickImages.front();
+      brickImages.pop_front();
+    }
+    else {
+      positionedBrick.fileName = "";
+    }
+
     positionedBrick.gameX = bd.first + initialColumn;
     positionedBrick.gameY = bd.second + initialRow;
     result->addInitialBrick(3, positionedBrick);
@@ -261,6 +301,153 @@ std::list<std::pair<int, int> > FigureFactory::getNewFigureTemplate(const Figure
     result.push_back(make_pair(1,0)); //1x
     result.push_back(make_pair(2,0)); //0xxx
     result.push_back(make_pair(3,0)); // 012
+    break;
+
+  default:
+    break;
+  }
+
+  return result;
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+std::list<std::string> FigureFactory::getNewFigureImages(const FigureType type) {
+  list<string> result;
+
+  switch (type) {
+  case kQuad:
+    result.push_back("blocks/bricks/plain_bricks_L2.png");//make_pair(1,1));
+    result.push_back("blocks/bricks/plain_bricks_R2.png");//make_pair(2,1));
+    result.push_back("blocks/bricks/plain_bricks_L1.png");//make_pair(1,2));
+    result.push_back("blocks/bricks/plain_bricks_R1.png");//make_pair(2,2));
+    break;
+
+  case kZR1:
+    result.push_back("blocks/bricks/plain_bricks_L2.png");//make_pair(1,0));
+    result.push_back("blocks/bricks/plain_bricks_R2.png");//make_pair(2,0));
+    result.push_back("blocks/bricks/plain_bricks_L1.png");//make_pair(0,1));
+    result.push_back("blocks/bricks/plain_bricks_R1.png");//make_pair(1,1));
+    break;
+
+  case kZR2:
+    result.push_back("blocks/bricks/plain_bricks_S1.png");//make_pair(1,0));
+    result.push_back("blocks/bricks/plain_bricks_L2.png");//make_pair(1,1));
+    result.push_back("blocks/bricks/plain_bricks_R2.png");//make_pair(2,1));
+    result.push_back("blocks/bricks/plain_bricks_S2.png");//make_pair(2,2));
+    break;
+
+  case kZMirroredR1:
+    result.push_back("blocks/bricks/plain_bricks_L2.png");//make_pair(0,0));
+    result.push_back("blocks/bricks/plain_bricks_R2.png");//make_pair(1,0));
+    result.push_back("blocks/bricks/plain_bricks_L1.png");//make_pair(1,1));
+    result.push_back("blocks/bricks/plain_bricks_R1.png");//make_pair(2,1));
+    break;
+
+  case kZMirroredR2:
+    result.push_back("blocks/bricks/plain_bricks_S1.png");//make_pair(1,0));
+    result.push_back("blocks/bricks/plain_bricks_L2.png");//make_pair(0,1));
+    result.push_back("blocks/bricks/plain_bricks_R1.png");//make_pair(1,1));
+    result.push_back("blocks/bricks/plain_bricks_S2.png");//make_pair(0,2));
+    break;
+
+  case kTR1:
+    result.push_back("blocks/bricks/plain_bricks_S1.png");//make_pair(0,0)); //2x
+    result.push_back("blocks/bricks/plain_bricks_L1.png");//make_pair(0,1)); //1xx
+    result.push_back("blocks/bricks/plain_bricks_R1.png");//make_pair(1,1)); //0x
+    result.push_back("blocks/bricks/plain_bricks_S2.png");//make_pair(0,2)); // 012
+    break;
+
+  case kTR2:
+    result.push_back("blocks/bricks/plain_bricks_L1.png");//make_pair(0,0));
+    result.push_back("blocks/bricks/plain_bricks_M1.png");//make_pair(1,0));
+    result.push_back("blocks/bricks/plain_bricks_R1.png");//make_pair(2,0));
+    result.push_back("blocks/bricks/plain_bricks_S2.png");//make_pair(1,1));
+    break;
+
+  case kTR3:
+    result.push_back("blocks/bricks/plain_bricks_S1.png");//make_pair(2,0)); //2  x
+    result.push_back("blocks/bricks/plain_bricks_L1.png");//make_pair(1,1)); //1 xx
+    result.push_back("blocks/bricks/plain_bricks_R1.png");//make_pair(2,1)); //0  x
+    result.push_back("blocks/bricks/plain_bricks_S2.png");//make_pair(2,2)); // 012
+    break;
+
+  case kTR4:
+    result.push_back("blocks/bricks/plain_bricks_S1.png");//make_pair(1,1)); //2xxx
+    result.push_back("blocks/bricks/plain_bricks_L1.png");//make_pair(0,2)); //1 x
+    result.push_back("blocks/bricks/plain_bricks_M1.png");//make_pair(1,2)); //0
+    result.push_back("blocks/bricks/plain_bricks_R1.png");//make_pair(2,2)); // 012
+    break;
+
+  case kLR1:
+    result.push_back("blocks/bricks/plain_bricks_L1.png");//make_pair(0,0)); //2x
+    result.push_back("blocks/bricks/plain_bricks_R1.png");//make_pair(1,0)); //1x
+    result.push_back("blocks/bricks/plain_bricks_S1.png");//make_pair(0,1)); //0xx
+    result.push_back("blocks/bricks/plain_bricks_S2.png");//make_pair(0,2)); // 012
+    break;
+
+  case kLR2:
+    result.push_back("blocks/bricks/plain_bricks_L1.png");//make_pair(0,0)); //2
+    result.push_back("blocks/bricks/plain_bricks_M1.png");//make_pair(1,0)); //1  x
+    result.push_back("blocks/bricks/plain_bricks_R1.png");//make_pair(2,0)); //0xxx
+    result.push_back("blocks/bricks/plain_bricks_S2.png");//make_pair(2,1)); // 012
+    break;
+
+  case kLR3:
+    result.push_back("blocks/bricks/plain_bricks_S1.png");//make_pair(2,0)); //2 xx
+    result.push_back("blocks/bricks/plain_bricks_S1.png");//make_pair(2,1)); //1  x
+    result.push_back("blocks/bricks/plain_bricks_L1.png");//make_pair(1,2)); //0  x
+    result.push_back("blocks/bricks/plain_bricks_R1.png");//make_pair(2,2)); // 012
+    break;
+
+  case kLR4:
+    result.push_back("blocks/bricks/plain_bricks_S1.png");//make_pair(0,1)); //2xxx
+    result.push_back("blocks/bricks/plain_bricks_L2.png");//make_pair(0,2)); //1x
+    result.push_back("blocks/bricks/plain_bricks_M2.png");//make_pair(1,2)); //0
+    result.push_back("blocks/bricks/plain_bricks_R2.png");//make_pair(2,2)); // 012
+    break;
+
+  case kLMirroredR1:
+    result.push_back("blocks/bricks/plain_bricks_L1.png");//make_pair(1,0)); //2  x
+    result.push_back("blocks/bricks/plain_bricks_R1.png");//make_pair(2,0)); //1  x
+    result.push_back("blocks/bricks/plain_bricks_S1.png");//make_pair(2,1)); //0 xx
+    result.push_back("blocks/bricks/plain_bricks_S2.png");//make_pair(2,2)); // 012
+    break;
+
+  case kLMirroredR2:
+    result.push_back("blocks/bricks/plain_bricks_S1.png");//make_pair(2,1)); //2xxx
+    result.push_back("blocks/bricks/plain_bricks_L2.png");//make_pair(0,2)); //1  x
+    result.push_back("blocks/bricks/plain_bricks_M2.png");//make_pair(1,2)); //0
+    result.push_back("blocks/bricks/plain_bricks_R2.png");//make_pair(2,2)); // 012
+    break;
+
+  case kLMirroredR3:
+    result.push_back("blocks/bricks/plain_bricks_S1.png");//make_pair(0,0)); //2xx
+    result.push_back("blocks/bricks/plain_bricks_S1.png");//make_pair(0,1)); //1x
+    result.push_back("blocks/bricks/plain_bricks_L2.png");//make_pair(0,2)); //0x
+    result.push_back("blocks/bricks/plain_bricks_R2.png");//make_pair(1,2)); // 012
+    break;
+
+  case kLMirroredR4:
+    result.push_back("blocks/bricks/plain_bricks_L1.png");//make_pair(0,0)); //2
+    result.push_back("blocks/bricks/plain_bricks_M1.png");//make_pair(1,0)); //1x
+    result.push_back("blocks/bricks/plain_bricks_R1.png");//make_pair(2,0)); //0xxx
+    result.push_back("blocks/bricks/plain_bricks_S2.png");//make_pair(0,1)); // 012
+    break;
+
+
+  case kIR1:                                                                 // x
+    result.push_back("blocks/bricks/plain_bricks_S1.png");//make_pair(0,0)); //2x
+    result.push_back("blocks/bricks/plain_bricks_S1.png");//make_pair(0,1)); //1x
+    result.push_back("blocks/bricks/plain_bricks_S1.png");//make_pair(0,2)); //0x
+    result.push_back("blocks/bricks/plain_bricks_S2.png");//make_pair(0,3)); // 012
+    break;
+
+  case kIR2:
+    result.push_back("blocks/bricks/plain_bricks_L2.png");//make_pair(0,0)); //2
+    result.push_back("blocks/bricks/plain_bricks_M2.png");//make_pair(1,0)); //1x
+    result.push_back("blocks/bricks/plain_bricks_M2.png");//make_pair(2,0)); //0xxx
+    result.push_back("blocks/bricks/plain_bricks_R2.png");//make_pair(3,0)); // 012
     break;
 
 

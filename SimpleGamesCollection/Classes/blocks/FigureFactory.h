@@ -21,6 +21,7 @@ public:
 
 protected:
   std::list<std::pair<int, int> > getNewFigureTemplate(const FigureType type );
+  std::list<std::string> getNewFigureImages(const FigureType type);
 
   void generateRandomSeq();
   FigureType getNextRandomType();

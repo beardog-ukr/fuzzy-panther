@@ -10,6 +10,7 @@ public:
   int gameY;
 
   cocos2d::Node* node;
+  std::string fileName;
 };
 
 enum MoveType : int { MT_Down = 0, MT_Left, MT_Right, MT_Rotate, kDrop, kDown = MT_Down };

@@ -177,8 +177,6 @@ bool BlocksMainScene::initGameNode() {
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
-
 bool BlocksMainScene::initKeyboardProcessing() {
   // keyboard processing
   EventListenerKeyboard* sceneKeyboardListener = EventListenerKeyboard::create();

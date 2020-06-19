@@ -135,19 +135,23 @@ bool FigureInfo::canDoRotate(const std::unique_ptr<WallInfo> &wall) {
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 Node* FigureInfo::createNode(const BrickInfo& brickInfo) {
-  const string fn = "blocks/common_tile.png";
+  const string defaultBrickImage = "blocks/common_tile.png";
+
+  string fn = defaultBrickImage;
+  if (!brickInfo.fileName.empty()) {
+    fn = brickInfo.fileName;
+  }
+
   Sprite* sprite = Sprite::create(fn);
   if(sprite == nullptr) {
     C6_D2(c6, "Failed to find ", fn);
     return nullptr;
   }
 
-//  const int startingColumn = 3;
-
   sprite->setAnchorPoint(Vec2(0,0));
   sprite->setPosition( brickInfo.gameX*tileSize, brickInfo.gameY*tileSize);
 
-  C6_D1(c6, "node created ");
+  C6_T1(c6, "node created ");
   return sprite;
 }
 
@@ -261,6 +265,7 @@ std::list<BrickInfo> FigureInfo::prepareMovedBricks(const MoveType mt) {
   for (const BrickInfo& brick: bricks) {
     BrickInfo movedBrick;
     movedBrick.node = brick.node;
+    movedBrick.fileName = brick.fileName;
     movedBrick.gameX = brick.gameX + xDiff;
     movedBrick.gameY = brick.gameY + yDiff;
 
@@ -278,6 +283,7 @@ list<BrickInfo> FigureInfo::prepareRotatedBricks(const int newRotationIndex) {
   for(const BrickInfo& templateBrick: rotationTemplates[newRotationIndex]) {
     BrickInfo rotatedBrick;
     rotatedBrick.node = nullptr;
+    rotatedBrick.fileName = templateBrick.fileName;
     rotatedBrick.gameX = templateBrick.gameX + accumulatedXdiff;
     rotatedBrick.gameY = templateBrick.gameY + accumulatedYdiff;
 
