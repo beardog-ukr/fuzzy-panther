@@ -4,6 +4,7 @@
 #include "bird/BirdMainScene.h"
 #include "blackjack/BlackjackMainScene.h"
 #include "blocks/BlocksMainScene.h"
+#include "eyes/EyesMainScene.h"
 
 #include "SixCatsLogger.h"
 #include "SixCatsLoggerMacro.h"
@@ -15,11 +16,11 @@ USING_NS_CC;
 using namespace std;
 
 enum MenuCodeGame {
-  MCG_Asteroids = 10,
-  MCG_Bird,
-  MCG_Blackjack,
-  MCG_Blocks,
-  MCG_Eyes
+  kAsteroids = 10,
+  kBird,
+  kBlackjack,
+  kBlocks,
+  kEyes
 };
 
 enum MenuCodeMain {
@@ -164,11 +165,11 @@ bool MainMenuScene::initNewGameMenu() {
                                  //, "Fifteen", "Flowers"
   };
   ccMenuCallback mcbs[itemsCount] = {
-    CC_CALLBACK_1(MainMenuScene::mcSwitchToGame, this, MCG_Asteroids),
-    CC_CALLBACK_1(MainMenuScene::mcSwitchToGame, this, MCG_Bird),
-    CC_CALLBACK_1(MainMenuScene::mcSwitchToGame, this, MCG_Blackjack),
-    CC_CALLBACK_1(MainMenuScene::mcSwitchToGame, this, MCG_Blocks),
-    CC_CALLBACK_1(MainMenuScene::mcSwitchToGame, this, MCG_Asteroids),
+    CC_CALLBACK_1(MainMenuScene::mcSwitchToGame, this, kAsteroids),
+    CC_CALLBACK_1(MainMenuScene::mcSwitchToGame, this, kBird),
+    CC_CALLBACK_1(MainMenuScene::mcSwitchToGame, this, kBlackjack),
+    CC_CALLBACK_1(MainMenuScene::mcSwitchToGame, this, kBlocks),
+    CC_CALLBACK_1(MainMenuScene::mcSwitchToGame, this, kEyes),
     // CC_CALLBACK_1(MainMenuScene::mcSwitchToGame, this, MCG_Asteroids),
     // CC_CALLBACK_1(MainMenuScene::mcSwitchToGame, this, MCG_Asteroids)
   };
@@ -290,20 +291,21 @@ void MainMenuScene::mcSwitchToGame(cocos2d::Ref *pSender, const int menuCode) {
 
 
   Scene* newScene = nullptr;
-  if (menuCode == MCG_Asteroids) {
+  if (menuCode == kAsteroids) {
     newScene = asteroids::AsteroidsScene::createScene();
   }
-  else if (menuCode == MCG_Bird) {
+  else if (menuCode == kBird) {
     newScene = bird::BirdMainScene::createScene(c6);
   }
-  else if (menuCode == MCG_Blackjack) {
+  else if (menuCode == kBlackjack) {
     newScene = blackjack::BlackjackMainScene::createScene(c6);
   }
-  else if (menuCode == MCG_Blocks) {
+  else if (menuCode == kBlocks) {
     newScene = blocks::BlocksMainScene::createScene(c6);
   }
-
-
+  else if (menuCode == kEyes) {
+    newScene = eyes::EyesMainScene::createScene(c6);
+  }
   else {
     C6_C2(c6, "Bad Call ", menuCode);
   }
