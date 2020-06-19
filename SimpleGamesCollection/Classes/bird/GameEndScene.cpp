@@ -115,8 +115,8 @@ bool GameEndScene::initMenu() {
 
   for (int i = 0; i< itemsCount; i++) {
     MenuItemImage* item = MenuItemImage::create();
-    item->setNormalSpriteFrame(sfc->getSpriteFrameByName("menu_panel_main.png"));
-    item->setSelectedSpriteFrame(sfc->getSpriteFrameByName("menu_panel_sec.png"));
+    item->setNormalSpriteFrame(sfc->getSpriteFrameByName("common_ui/panel_main.png"));
+    item->setSelectedSpriteFrame(sfc->getSpriteFrameByName("common_ui/panel_sec.png"));
     item->setCallback(mcbs[i]);
 
     const Size itemSize = item->getContentSize();

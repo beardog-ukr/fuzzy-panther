@@ -30,7 +30,7 @@ protected:
   cocos2d::Menu* mainMenu;
 
   cocos2d::Sprite* settingsMenu; // TODO: implement real menu instead of sprite stub
-  cocos2d::Menu* newGameMenu;
+  cocos2d::Node* newGameMenu;
   cocos2d::Node* currentSideMenu;
   void switchSideMenu(cocos2d::Node* newMenu);
 };

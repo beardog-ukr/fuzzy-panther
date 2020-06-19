@@ -20,7 +20,13 @@ enum MenuCodeGame {
   kBird,
   kBlackjack,
   kBlocks,
-  kEyes
+  kEyes,
+  kFifteen,
+  kFlowers,
+  kLife,
+  kRepeat,
+  kSnake,
+  kSokoban
 };
 
 enum MenuCodeMain {
@@ -123,8 +129,8 @@ bool MainMenuScene::initMainMenu() {
 
   for (int i = 0; i< itemsCount; i++) {
     MenuItemImage* item = MenuItemImage::create();
-    item->setNormalSpriteFrame(sfc->getSpriteFrameByName("menu_panel_main.png"));
-    item->setSelectedSpriteFrame(sfc->getSpriteFrameByName("menu_panel_sec.png"));
+    item->setNormalSpriteFrame(sfc->getSpriteFrameByName("common_ui/panel_main.png"));
+    item->setSelectedSpriteFrame(sfc->getSpriteFrameByName("common_ui/panel_sec.png"));
     item->setCallback(mcbs[i]);
 
     // item->
@@ -155,14 +161,23 @@ bool MainMenuScene::initMainMenu() {
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 bool MainMenuScene::initNewGameMenu() {
+  const Size cs = getContentSize();
+
+  newGameMenu = Node::create();
+  newGameMenu->setAnchorPoint(Vec2(0.5, 0.5));
+//  newGameMenu->setAnchorPoint(Vec2(0, 0));
+
+  Size menuNodeSize = {.width = cs.width/2, .height = cs.height};
+  newGameMenu->setContentSize(menuNodeSize);
+
   SpriteFrameCache* sfc = SpriteFrameCache::getInstance();
   Menu* menu = Menu::create();
-  const Size cs = getContentSize();
+
   menu->setContentSize(Size(cs.width/2, cs.height));
 
-  const int itemsCount = 5;
-  string captions[itemsCount] = {"Asteroids", "Bird", "Blackjack", "Blocks", "Eyes"
-                                 //, "Fifteen", "Flowers"
+  const int itemsCount = 10;
+  string captions[itemsCount] = {"Asteroids", "Bird", "Blackjack", "Blocks", "Eyes",
+                                 "Fifteen", "Flowers", "Repeat", "Snake", "Sokoban"
   };
   ccMenuCallback mcbs[itemsCount] = {
     CC_CALLBACK_1(MainMenuScene::mcSwitchToGame, this, kAsteroids),
@@ -170,14 +185,19 @@ bool MainMenuScene::initNewGameMenu() {
     CC_CALLBACK_1(MainMenuScene::mcSwitchToGame, this, kBlackjack),
     CC_CALLBACK_1(MainMenuScene::mcSwitchToGame, this, kBlocks),
     CC_CALLBACK_1(MainMenuScene::mcSwitchToGame, this, kEyes),
-    // CC_CALLBACK_1(MainMenuScene::mcSwitchToGame, this, MCG_Asteroids),
-    // CC_CALLBACK_1(MainMenuScene::mcSwitchToGame, this, MCG_Asteroids)
+    CC_CALLBACK_1(MainMenuScene::mcSwitchToGame, this, kFifteen),
+    CC_CALLBACK_1(MainMenuScene::mcSwitchToGame, this, kFlowers),
+    CC_CALLBACK_1(MainMenuScene::mcSwitchToGame, this, kRepeat),
+    CC_CALLBACK_1(MainMenuScene::mcSwitchToGame, this, kSnake),
+    CC_CALLBACK_1(MainMenuScene::mcSwitchToGame, this, kSokoban)
   };
+
+  list<MenuItemImage*> ngMenuItems;
 
   for (int i = 0; i< itemsCount; i++) {
     MenuItemImage* item = MenuItemImage::create();
-    item->setNormalSpriteFrame(sfc->getSpriteFrameByName("menu_panel_main.png"));
-    item->setSelectedSpriteFrame(sfc->getSpriteFrameByName("menu_panel_sec.png"));
+    item->setNormalSpriteFrame(sfc->getSpriteFrameByName("common_ui/panel_medium_main.png"));
+    item->setSelectedSpriteFrame(sfc->getSpriteFrameByName("common_ui/panel_medium_sec.png"));
     item->setCallback(mcbs[i]);
     // "menu/panel_Example2.png", "menu/panel_Example1.png", mcbs[i]);
 
@@ -189,15 +209,41 @@ bool MainMenuScene::initNewGameMenu() {
     item->addChild(label);
 
     menu->addChild(item);
+    ngMenuItems.push_back(item);
+  }
+
+  menu->setPosition(Vec2::ZERO);
+  newGameMenu->addChild(menu);
+
+
+
+  float leftPos = menuNodeSize.width/4;//
+  float rightPos = (menuNodeSize.width/4)*3;//
+  float currentXPos = leftPos;
+
+
+  float yPosStep = menuNodeSize.height / ((itemsCount/2) +1);
+  float currentYPos = menuNodeSize.height - yPosStep;
+  for (MenuItemImage* menuItem: ngMenuItems) {
+    menuItem->setPosition(currentXPos, currentYPos);
+    if (currentXPos==leftPos) {
+      currentXPos = rightPos;
+    }
+    else {
+      currentXPos = leftPos;
+      currentYPos = currentYPos - yPosStep;
+    }
   }
 
 
-  menu->setPosition(Vec2(cs.width-cs.width/4, cs.height + cs.height/2));
-  addChild(menu, ZO_Side_Menu);
+  addChild(newGameMenu, ZO_Side_Menu);
 
-  menu->alignItemsVerticallyWithPadding(1);
 
-  newGameMenu = menu;
+  newGameMenu->setPosition(Vec2(cs.width-cs.width/4, cs.height + cs.height/2));
+
+//  menu->alignItemsVerticallyWithPadding(1);
+
+//  newGameMenu = menu;
 
   return true;
 }

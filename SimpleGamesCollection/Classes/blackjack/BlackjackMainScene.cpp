@@ -259,8 +259,8 @@ bool BlackjackMainScene::initMenu() {
 Node* BlackjackMainScene::prepareMainMenuButton() {
   SpriteFrameCache* const sfc = SpriteFrameCache::getInstance();
   MenuItemImage* bmItem = MenuItemImage::create();
-  bmItem->setNormalSpriteFrame(sfc->getSpriteFrameByName("menu_panel_main.png"));
-  bmItem->setSelectedSpriteFrame(sfc->getSpriteFrameByName("menu_panel_sec.png"));
+  bmItem->setNormalSpriteFrame(sfc->getSpriteFrameByName("common_ui/panel_main.png"));
+  bmItem->setSelectedSpriteFrame(sfc->getSpriteFrameByName("common_ui/panel_sec.png"));
   bmItem->setCallback(CC_CALLBACK_1(BlackjackMainScene::mcBackToMain, this));
 
   const Size currentWindowSize = getContentSize();
@@ -283,8 +283,8 @@ Node* BlackjackMainScene::prepareMainMenuButton() {
 Node* BlackjackMainScene::prepareReplayButton() {
   SpriteFrameCache* const sfc = SpriteFrameCache::getInstance();
   MenuItemImage* item = MenuItemImage::create();
-  item->setNormalSpriteFrame(sfc->getSpriteFrameByName("menu_panel_main.png"));
-  item->setSelectedSpriteFrame(sfc->getSpriteFrameByName("menu_panel_sec.png"));
+  item->setNormalSpriteFrame(sfc->getSpriteFrameByName("common_ui/panel_main.png"));
+  item->setSelectedSpriteFrame(sfc->getSpriteFrameByName("common_ui/panel_sec.png"));
   item->setCallback(CC_CALLBACK_1(BlackjackMainScene::mcReplay, this));
 
   // MenuItemImage* item = MenuItemImage::create(
