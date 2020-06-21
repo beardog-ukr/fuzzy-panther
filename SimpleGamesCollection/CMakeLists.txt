@@ -56,6 +56,10 @@ list(APPEND GAME_SOURCE
      Classes/blocks/FigureFactory.cpp
      Classes/blocks/WallInfo.cpp
      Classes/eyes/EyesMainScene.cpp
+     Classes/fifteen/BoardCombinationsFactory.cpp
+     Classes/fifteen/FifteenGameNode.cpp
+     Classes/fifteen/FifteenMainScene.cpp
+     Classes/fifteen/TokenNode.cpp
      Classes/main_menu/BackgroundNode.cpp
      Classes/main_menu/MainMenuScene.cpp
      )
@@ -86,6 +90,11 @@ list(APPEND GAME_HEADER
      Classes/blocks/FigureFactory.h
      Classes/blocks/WallInfo.h
      Classes/eyes/EyesMainScene.h
+     Classes/fifteen/BoardCombinationsFactory.h
+     Classes/fifteen/FifteenGameNode.h
+     Classes/fifteen/FifteenMainScene.h
+     Classes/fifteen/TokenNode.h
+     Classes/fifteen/ZOrderValues.h
      Classes/main_menu/BackgroundNode.h
      Classes/main_menu/MainMenuScene.h
      )
