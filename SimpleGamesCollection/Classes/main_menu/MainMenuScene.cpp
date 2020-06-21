@@ -5,6 +5,7 @@
 #include "blackjack/BlackjackMainScene.h"
 #include "blocks/BlocksMainScene.h"
 #include "eyes/EyesMainScene.h"
+#include "fifteen/FifteenMainScene.h"
 
 #include "SixCatsLogger.h"
 #include "SixCatsLoggerMacro.h"
@@ -133,9 +134,6 @@ bool MainMenuScene::initMainMenu() {
     item->setSelectedSpriteFrame(sfc->getSpriteFrameByName("common_ui/panel_sec.png"));
     item->setCallback(mcbs[i]);
 
-    // item->
-    // "menu/panel_Example2.png", "menu/panel_Example1.png", mcbs[i]);
-
     Label* label = Label::createWithTTF(captions[i], "fonts/Marker Felt.ttf", 32);
     label->setTextColor(Color4B(160,82,45,255));
     label->setAnchorPoint(Vec2(0.5,0.5));
@@ -199,7 +197,6 @@ bool MainMenuScene::initNewGameMenu() {
     item->setNormalSpriteFrame(sfc->getSpriteFrameByName("common_ui/panel_medium_main.png"));
     item->setSelectedSpriteFrame(sfc->getSpriteFrameByName("common_ui/panel_medium_sec.png"));
     item->setCallback(mcbs[i]);
-    // "menu/panel_Example2.png", "menu/panel_Example1.png", mcbs[i]);
 
     Label* label = Label::createWithTTF(captions[i], "fonts/Marker Felt.ttf", 32);
     label->setTextColor(Color4B(160,82,45,255));
@@ -238,12 +235,7 @@ bool MainMenuScene::initNewGameMenu() {
 
   addChild(newGameMenu, ZO_Side_Menu);
 
-
   newGameMenu->setPosition(Vec2(cs.width-cs.width/4, cs.height + cs.height/2));
-
-//  menu->alignItemsVerticallyWithPadding(1);
-
-//  newGameMenu = menu;
 
   return true;
 }
@@ -351,6 +343,9 @@ void MainMenuScene::mcSwitchToGame(cocos2d::Ref *pSender, const int menuCode) {
   }
   else if (menuCode == kEyes) {
     newScene = eyes::EyesMainScene::createScene(c6);
+  }
+  else if (menuCode == kFifteen) {
+    newScene = fifteen::FifteenMainScene::createScene(c6);
   }
   else {
     C6_C2(c6, "Bad Call ", menuCode);
