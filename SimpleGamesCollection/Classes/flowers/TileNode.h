@@ -18,23 +18,25 @@ public:
   void setMineCounter(const int value);
   void setTileType(const TileType newTileType);
 
-  void switchRedFlag();
+  void switchFlag();
 
   void reset();
+
+  static const std::string kFlagAnimationName;
 
 protected:
   TileNode();
   virtual ~TileNode();
 
-  cocos2d::Sprite* redFlag;
+  cocos2d::Sprite* flagNode;
   cocos2d::Label* mineCounter;
 
+  TileType currentTileType;
+  int currentMineCounterValue;
+
   bool initMineCounter();
-  bool initRedFlag();
+  bool initFlag();
   bool initSelf();
-
-
-
 };
 
 }

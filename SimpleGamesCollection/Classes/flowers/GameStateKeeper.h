@@ -12,7 +12,7 @@ enum TileType : int;
 
 enum GameFieldSize {
   kFlowersGameWidth = 15,
-  kFLowersGameHeight = 10
+  kFlowersGameHeight = 10
 };
 
 class GameStateKeeper : virtual public SixCatsLoggerLoggable {
@@ -41,15 +41,18 @@ protected:
 
   void generateRandomMap(int * const map);
 
-  std::list< std::pair<int, int> > changedNodes;
+//  std::list< std::pair<int, int> > changedNodes;
 
   // returns true if all tiles are either visible or contain mine
   bool checkIfAllRevealed();
 
+  void reevaluateTilesVisual(std::list<std::pair<int, int> > &changedNodes);
 
-  int minesCount[kFlowersGameWidth*kFLowersGameHeight];
-  bool minesPresence[kFlowersGameWidth*kFLowersGameHeight];
-  bool tilesVisibility[kFlowersGameWidth*kFLowersGameHeight];
+
+  int minesCount[kFlowersGameWidth*kFlowersGameHeight];
+  bool minesPresence[kFlowersGameWidth*kFlowersGameHeight];
+  bool tilesVisibility[kFlowersGameWidth*kFlowersGameHeight];
+  TileType tilesVisual[kFlowersGameWidth*kFlowersGameHeight];
 
   bool gameIsOver;
   bool gameWasFailed;

@@ -12,11 +12,12 @@ using namespace std;
 using namespace flowers;
 
 static const int kTileSize = 64;
+const std::string TileNode::kFlagAnimationName = "flowers/green_flag";
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 TileNode::TileNode() {
-  // gameSolved = false;
+  //
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -47,12 +48,11 @@ TileNode* TileNode::create(std::shared_ptr<SixCatsLogger> inc6) {
 
 bool TileNode::initMineCounter() {
   Label* label = Label::createWithTTF("0", "fonts/Marker Felt.ttf", 32);
-  label->setTextColor(Color4B(160,82,45,255));
+  label->setTextColor(Color4B(230,240,240,255));
   label->setAnchorPoint(Vec2(0.5,0.5));
   const Size cs = getContentSize();
   label->setPosition(cs.width/2, cs.height/2);
   addChild(label, kCounterZOrder);
-
 
   label->setVisible(false);
 
@@ -67,8 +67,8 @@ void TileNode::reset() {
   if (mineCounter) {
     mineCounter->setVisible(false);
   }
-  if (redFlag) {
-    redFlag->setVisible(false);
+  if (flagNode) {
+    flagNode->setVisible(false);
   }
 
   setTileType(kStonesTileType);
@@ -76,17 +76,23 @@ void TileNode::reset() {
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-bool TileNode::initRedFlag() {
-  const string fn = "red_flag.png";
-  redFlag = Sprite::createWithSpriteFrameName(fn);
-  if (redFlag == nullptr) {
+bool TileNode::initFlag() {
+  const string fn = "green_flag_00.png";
+  flagNode = Sprite::createWithSpriteFrameName(fn);
+  if (flagNode == nullptr) {
+    C6_C2(c6, "Failed to init with file ", fn);
     return false;
   }
 
-  redFlag->setPosition(Vec2(kTileSize/2, kTileSize/2));
-  addChild(redFlag, kRedFlagZOrder);
+  flagNode->setPosition(Vec2(kTileSize/2, kTileSize/2));
+  addChild(flagNode, kRedFlagZOrder);
 
-  redFlag->setVisible(false);
+  Animation* animation = AnimationCache::getInstance()->getAnimation(kFlagAnimationName);
+  Animate* animate = Animate::create(animation);
+  RepeatForever* ra =  RepeatForever::create(animate);
+  flagNode->runAction(ra);
+
+  flagNode->setVisible(false);
 
   return true;
 }
@@ -97,11 +103,14 @@ bool TileNode::initSelf() {
   const string fn = "stone.png";
   if (!initWithSpriteFrameName(fn)) {
     C6_C2(c6, "Failed to init with file ", fn);
-    return false;    //
+    return false;
   }
 
+  currentTileType = kStonesTileType;
+  currentMineCounterValue = 0;
+
   mineCounter = nullptr;
-  redFlag = nullptr;
+  flagNode = nullptr;
 
   return true;
 }
@@ -113,33 +122,57 @@ void TileNode::setMineCounter(const int value) {
     return;
   }
 
+  currentMineCounterValue = value;
+
   if (mineCounter==nullptr) {
     if (!initMineCounter()) {
       return;
     }
   }
 
-  mineCounter->setVisible(true);
-
   ostringstream ss;
   ss << value;
   mineCounter->setString(ss.str());
+
+  bool isStones = (currentTileType == kStonesTileType) || (currentTileType == kStonesUpTileType);
+  if (!isStones) {
+    mineCounter->setVisible(true);
+  }
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 void TileNode::setTileType(const TileType newTileType) {
+  if (currentTileType == newTileType) {
+    return;
+  }
+
   string sfn = ""; // sprite frame name
   switch (newTileType) {
   case kGrassTileType:
     sfn = "grass.png";
     break;
+  case kGrassUpTileType:
+    sfn = "grass_up.png";
+    break;
+
   case kStonesTileType:
     sfn = "stone.png";
+    break;
+  case kStonesUpTileType:
+    sfn = "stone_up.png";
     break;
   default:
     C6_C2(c6, "Unknown tile type ", (int) newTileType);
     return;
+  }
+
+  currentTileType = newTileType;
+  if ((newTileType == kGrassTileType)||(newTileType==kGrassUpTileType)) {
+    if (currentMineCounterValue != 0) {
+//          setMineCounter(currentMineCounterValue);
+      mineCounter->setVisible(true);
+    }
   }
 
   setSpriteFrame(sfn);
@@ -147,14 +180,14 @@ void TileNode::setTileType(const TileType newTileType) {
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-void TileNode::switchRedFlag() {
-  if (redFlag==nullptr) {
-    if (!initRedFlag()) {
+void TileNode::switchFlag() {
+  if (flagNode==nullptr) {
+    if (!initFlag()) {
       return;
     }
   }
 
-  redFlag->setVisible(!redFlag->isVisible());
+  flagNode->setVisible(!flagNode->isVisible());
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .

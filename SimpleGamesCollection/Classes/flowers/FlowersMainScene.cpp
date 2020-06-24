@@ -13,6 +13,8 @@ using namespace flowers;
 USING_NS_CC;
 using namespace std;
 
+
+
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 FlowersMainScene::FlowersMainScene() {
@@ -22,7 +24,7 @@ FlowersMainScene::FlowersMainScene() {
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 FlowersMainScene::~FlowersMainScene() {
-  SpriteFrameCache::getInstance()->removeSpriteFramesFromFile("flowers/flowers.plist");
+  FlowersGameNode::unloadSpriteCache();
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -56,13 +58,7 @@ bool FlowersMainScene::init() {
     return false;
   }
 
-  const string fn = "flowers/flowers.plist";
-
-  SpriteFrameCache* const sfc = SpriteFrameCache::getInstance();
-
-  sfc->addSpriteFramesWithFile(fn);
-  if (!sfc->isSpriteFramesWithFileLoaded(fn)) {
-    C6_C2(c6, "Failed to find ", fn);
+  if (!FlowersGameNode::loadSpriteCache(c6)) {
     return false;
   }
 

@@ -26,6 +26,9 @@ public:
 
   void resetForNewGame();
 
+  static bool loadSpriteCache(std::shared_ptr<SixCatsLogger> c6);
+  static void unloadSpriteCache();
+
 protected:
   FlowersGameNode();
   virtual ~FlowersGameNode();

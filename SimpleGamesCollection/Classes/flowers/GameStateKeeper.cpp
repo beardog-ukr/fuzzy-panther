@@ -17,8 +17,8 @@ using namespace flowers;
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 static int gamePosToMatrixIndex(const int gameX, const int gameY) {
-  int result = gameX + ((kFLowersGameHeight-1) -gameY)*kFlowersGameWidth;
-  if ((result <0)||(result>=(kFlowersGameWidth*kFLowersGameHeight))) {
+  int result = gameX + ((kFlowersGameHeight-1) -gameY)*kFlowersGameWidth;
+  if ((result <0)||(result>=(kFlowersGameWidth*kFlowersGameHeight))) {
     return 0;
   }
 
@@ -41,7 +41,7 @@ GameStateKeeper::~GameStateKeeper() {
 
 bool GameStateKeeper::checkIfAllRevealed() {
   bool allTilesAreVisible = true;
-  for (int i = 0; i<(kFlowersGameWidth*kFLowersGameHeight); i++) {
+  for (int i = 0; i<(kFlowersGameWidth*kFlowersGameHeight); i++) {
     if (minesPresence[i]) {
       continue;
     }
@@ -70,14 +70,14 @@ string GameStateKeeper::generateTileNodeName(const int x, const int y) {
 void GameStateKeeper::generateRandomMap(int* const map) {
   int minesCountMax = 20;
 
-  for (int i = 0; i<kFlowersGameWidth*kFLowersGameHeight; i++) {
+  for (int i = 0; i<kFlowersGameWidth*kFlowersGameHeight; i++) {
     map[i] = 0;
   }
 
   int currentMinesCount = 0;
   while(currentMinesCount<= minesCountMax) {
     int row = RandomHelper::random_int((int)0, kFlowersGameWidth-1);
-    int column = RandomHelper::random_int((int)0, kFLowersGameHeight-1);
+    int column = RandomHelper::random_int((int)0, kFlowersGameHeight-1);
 
     int idx = gamePosToMatrixIndex(row, column);
     if (map[idx] ==0) {
@@ -112,12 +112,12 @@ int GameStateKeeper::getTileCounter(const int x, const int y) const {
 TileType GameStateKeeper::getTileStatus(const int x, const int y)const {
   int idx = gamePosToMatrixIndex(x, y);
 
-  TileType result = kStonesTileType;
-  if (tilesVisibility[idx]) {
-    result = kGrassTileType;
-  }
+//  TileType result = kStonesTileType;
+//  if (tilesVisibility[idx]) {
+//    result = kGrassTileType;
+//  }
 
-  return result;
+  return tilesVisual[idx];
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -126,11 +126,11 @@ void GameStateKeeper::initMap() {
   gameIsOver = false;
   gameWasFailed = false;
 
-//  int minesMap[kFlowersGameWidth*kFLowersGameHeight] = {
-//    0,0,1,0,0, 0,0,0,0,0, 0,0,0,0,0,
+//  int minesMap[kFlowersGameWidth*kFlowersGameHeight] = {
+//    0,0,1,0,0, 1,0,0,0,0, 0,0,0,0,0,
 //    0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0,
-//    0,0,1,0,0, 0,0,0,0,0, 0,0,0,0,0,
-//    1,0,1,0,0, 0,0,0,0,0, 0,0,0,0,0,
+//    0,0,1,0,0, 1,0,0,0,0, 0,0,0,0,0,
+//    1,0,1,0,0, 1,0,0,0,0, 0,0,0,0,0,
 //    0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0,
 
 //    0,0,1,0,0, 0,0,0,0,0, 0,0,0,0,0,
@@ -139,18 +139,18 @@ void GameStateKeeper::initMap() {
 //    0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0,
 //    0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0
 //  };
-  int minesMap[kFlowersGameWidth*kFLowersGameHeight];
+  int minesMap[kFlowersGameWidth*kFlowersGameHeight];
   generateRandomMap(minesMap);
 
   for(int i = 0; i<kFlowersGameWidth; i++) {
-    for(int j = 0; j<kFLowersGameHeight; j++) {
+    for(int j = 0; j<kFlowersGameHeight; j++) {
       int mIdx = gamePosToMatrixIndex(i,j);
       minesPresence[mIdx] = (minesMap[mIdx] != 0);
     }
   }
 
   for(int i = 0; i<kFlowersGameWidth; i++) {
-    for(int j = 0; j<kFLowersGameHeight; j++) {
+    for(int j = 0; j<kFlowersGameHeight; j++) {
       int cntr = 0;
 
       int diffX[8] = {-1, 0, 1,-1, 1,-1, 0, 1};
@@ -158,7 +158,7 @@ void GameStateKeeper::initMap() {
       for (int di = 0; di<8; di++) {
         int x = i + diffX[di];
         int y = j + diffY[di];
-        if ((x>=0)&&(x<kFlowersGameWidth)&&(y>=0)&&(y<kFLowersGameHeight)) {
+        if ((x>=0)&&(x<kFlowersGameWidth)&&(y>=0)&&(y<kFlowersGameHeight)) {
           if (minesPresence[gamePosToMatrixIndex(x,y)]) {
             cntr++;
           }
@@ -170,8 +170,12 @@ void GameStateKeeper::initMap() {
   }
 
 
-  for (int i = 0; i<(kFlowersGameWidth*kFLowersGameHeight); i++) {
+  for (int i = 0; i<(kFlowersGameWidth*kFlowersGameHeight); i++) {
     tilesVisibility[i] = false;
+  }
+
+  for (int i = 0; i<(kFlowersGameWidth*kFlowersGameHeight); i++) {
+    tilesVisual[i] = kStonesTileType;
   }
 }
 
@@ -195,6 +199,7 @@ list<pair<int, int> > GameStateKeeper::processClick(const int row, const int col
   }
   else {
     tilesVisibility[idx] = true;
+    tilesVisual[idx] = kGrassTileType;
     result.push_back(make_pair(row, column));
 
     if (minesCount[idx] == 0) {
@@ -206,7 +211,7 @@ list<pair<int, int> > GameStateKeeper::processClick(const int row, const int col
     needToShowSomeTiles = false;
 
     for(int i = 0; i<kFlowersGameWidth; i++) {
-      for(int j = 0; j<kFLowersGameHeight; j++) {
+      for(int j = 0; j<kFlowersGameHeight; j++) {
         int cellIdx = gamePosToMatrixIndex(i,j);
         if (minesCount[cellIdx] != 0) {
           continue;
@@ -220,10 +225,11 @@ list<pair<int, int> > GameStateKeeper::processClick(const int row, const int col
         for (int di = 0; di<8; di++) {
           int x = i + diffX[di];
           int y = j + diffY[di];
-          if ((x>=0)&&(x<kFlowersGameWidth)&&(y>=0)&&(y<kFLowersGameHeight)) {
+          if ((x>=0)&&(x<kFlowersGameWidth)&&(y>=0)&&(y<kFlowersGameHeight)) {
             const int npIdx = gamePosToMatrixIndex(x,y);   // neibor pos index
             if (!tilesVisibility[npIdx]) {
               tilesVisibility[npIdx] = true;
+              tilesVisual[npIdx] = kGrassTileType;
               result.push_back(make_pair(x, y));
 
               if(minesCount[npIdx]==0) {
@@ -243,8 +249,77 @@ list<pair<int, int> > GameStateKeeper::processClick(const int row, const int col
     return result;
   }
 
+  reevaluateTilesVisual(result);
+
   return result;
 }
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+void GameStateKeeper::reevaluateTilesVisual(list<pair<int, int> >& changedNodes) {
+  C6_D1(c6, "here");
+
+  // check for upper grass
+  for(int i = 0; i<kFlowersGameWidth; i++) {
+    for(int j = 0; j<kFlowersGameHeight-1; j++) {
+      int idx = gamePosToMatrixIndex(i,j);
+      int upperIdx = gamePosToMatrixIndex(i,j+1);
+
+      bool c1 = (tilesVisibility[idx]==false) && tilesVisibility[upperIdx];
+      if (c1) {
+        if (tilesVisual[upperIdx] == kGrassTileType) {
+          tilesVisual[upperIdx] = kGrassUpTileType;
+          changedNodes.push_back(make_pair(i,j+1));
+        }
+      }
+
+      // for tiles previously marked as "grass up", but now lower tile became visible
+      bool c2 = tilesVisibility[idx] && tilesVisibility[upperIdx];
+      if (c2) {
+
+
+        if (tilesVisual[upperIdx] == kGrassUpTileType) {
+          C6_D4(c6, "Need to set visual at ", i, ":", j+1);
+          tilesVisual[upperIdx] = kGrassTileType;
+          changedNodes.push_back(make_pair(i,j+1));
+        }
+      }
+    }
+  }
+
+  // check for stone up from grass
+  for(int i = 0; i<kFlowersGameWidth; i++) {
+    for(int j = 0; j<kFlowersGameHeight-1; j++) {
+      int idx = gamePosToMatrixIndex(i,j);
+      int upperIdx = gamePosToMatrixIndex(i,j+1);
+
+      bool c1 = (tilesVisibility[upperIdx]==false) && tilesVisibility[idx];
+      if (c1) {
+        if (tilesVisual[upperIdx] == kStonesTileType) {
+          tilesVisual[upperIdx] = kStonesUpTileType;
+          changedNodes.push_back(make_pair(i,j+1));
+        }
+      }
+
+//      // for tiles previously marked as "grass up", but now lower tile became visible
+//      bool c2 = tilesVisibility[idx] && tilesVisibility[upperIdx];
+//      if (c2) {
+
+
+//        if (tilesVisual[upperIdx] == kGrassUpTileType) {
+//          C6_D4(c6, "Need to set visual at ", i, ":", j+1);
+//          tilesVisual[upperIdx] = kGrassTileType;
+//          changedNodes.push_back(make_pair(i,j+1));
+//        }
+//      }
+    }
+  }
+
+
+
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 void GameStateKeeper::reset() {
   gameIsOver = false;

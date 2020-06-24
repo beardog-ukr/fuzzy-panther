@@ -13,6 +13,7 @@ using namespace std;
 using namespace flowers;
 
 static const int kTileSize = 64;
+const string kFlowersPlistFileName = "flowers/flowers.plist";
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
@@ -86,7 +87,7 @@ bool FlowersGameNode::initTileNodes() {
 
 
   for (int i = 0; i<kFlowersGameWidth; i++) {
-    for (int j = 0; j<kFLowersGameHeight; j++) {
+    for (int j = 0; j<kFlowersGameHeight; j++) {
       TileNode* tileNode = TileNode::create(c6);
       tileNode->setName(GameStateKeeper::generateTileNodeName(i,j));
 
@@ -105,13 +106,46 @@ bool FlowersGameNode::initTileNodes() {
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
+bool FlowersGameNode::loadSpriteCache(std::shared_ptr<SixCatsLogger> c6) {
+  SpriteFrameCache* const sfc = SpriteFrameCache::getInstance();
+
+  sfc->addSpriteFramesWithFile(kFlowersPlistFileName);
+  if (!sfc->isSpriteFramesWithFileLoaded(kFlowersPlistFileName)) {
+    C6_C2(c6, "Failed to find ", kFlowersPlistFileName);
+    return false;
+  }
+
+  Vector<SpriteFrame*> animFrames;
+  Animation *flagAnimation = Animation::create();
+  char tmps[256];
+  for (int i = 0; i<=3; i++) {
+    sprintf(tmps, "green_flag_%02i.png", i);
+    SpriteFrame *sf = sfc->getSpriteFrameByName(tmps);
+
+    if (sf != nullptr) {
+      flagAnimation->addSpriteFrame(sf);
+    }
+    else {
+      printf("Error while loading: %s\n", tmps);
+      return false;
+    }
+  }
+
+  flagAnimation->setDelayPerUnit(0.1);
+  AnimationCache::getInstance()->addAnimation(flagAnimation, TileNode::kFlagAnimationName);
+
+  return true;
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
 bool FlowersGameNode::processClick(const float clickX, const float clickY,
                                    const cocos2d::EventMouse::MouseButton button) {
   float tmpf;
   modf(kFlowersGameWidth*clickX, &tmpf);
   int row = (int)round(tmpf);
 
-  modf(kFLowersGameHeight*clickY, &tmpf);
+  modf(kFlowersGameHeight*clickY, &tmpf);
   int column = (int)round(tmpf);
 
   C6_D4(c6, "Click at position: ", row, ":", column);
@@ -173,7 +207,7 @@ void FlowersGameNode::processRightClick(const int row, const int column) {
     return;
   }
 
-  node->switchRedFlag();
+  node->switchFlag();
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -181,7 +215,7 @@ void FlowersGameNode::processRightClick(const int row, const int column) {
 void FlowersGameNode::resetForNewGame() {
 
   for (int i = 0; i<kFlowersGameWidth; i++) {
-    for (int j = 0; j<kFLowersGameHeight; j++) {
+    for (int j = 0; j<kFlowersGameHeight; j++) {
       string nn = gameStateKeeper->generateTileNodeName(i,j);
       TileNode* node = dynamic_cast<TileNode*>(getChildByName(nn));
       if (node == nullptr) {
@@ -196,3 +230,10 @@ void FlowersGameNode::resetForNewGame() {
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
+void FlowersGameNode::unloadSpriteCache() {
+  AnimationCache::getInstance()->removeAnimation(TileNode::kFlagAnimationName);
+
+  SpriteFrameCache::getInstance()->removeSpriteFramesFromFile("flowers/flowers.plist");
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
