@@ -12,6 +12,8 @@
 #include "SixCatsLoggerMacro.h"
 #include <sstream>
 
+#include <math.h>       /* ceil */
+
 #include "BackgroundNode.h"
 
 USING_NS_CC;
@@ -174,9 +176,10 @@ bool MainMenuScene::initNewGameMenu() {
 
   menu->setContentSize(Size(cs.width/2, cs.height));
 
-  const int itemsCount = 10;
+  const int itemsCount = 11;
   string captions[itemsCount] = {"Asteroids", "Bird", "Blackjack", "Blocks", "Eyes",
-                                 "Fifteen", "Flowers", "Repeat", "Snake", "Sokoban"
+                                 "Fifteen", "Flowers", "Life", "Repeat", "Snake",
+                                 "Sokoban"
   };
   ccMenuCallback mcbs[itemsCount] = {
     CC_CALLBACK_1(MainMenuScene::mcSwitchToGame, this, kAsteroids),
@@ -186,6 +189,7 @@ bool MainMenuScene::initNewGameMenu() {
     CC_CALLBACK_1(MainMenuScene::mcSwitchToGame, this, kEyes),
     CC_CALLBACK_1(MainMenuScene::mcSwitchToGame, this, kFifteen),
     CC_CALLBACK_1(MainMenuScene::mcSwitchToGame, this, kFlowers),
+    CC_CALLBACK_1(MainMenuScene::mcSwitchToGame, this, kLife),
     CC_CALLBACK_1(MainMenuScene::mcSwitchToGame, this, kRepeat),
     CC_CALLBACK_1(MainMenuScene::mcSwitchToGame, this, kSnake),
     CC_CALLBACK_1(MainMenuScene::mcSwitchToGame, this, kSokoban)
@@ -220,7 +224,7 @@ bool MainMenuScene::initNewGameMenu() {
   float currentXPos = leftPos;
 
 
-  float yPosStep = menuNodeSize.height / ((itemsCount/2) +1);
+  float yPosStep = menuNodeSize.height / (ceil(itemsCount/2.0) +1);
   float currentYPos = menuNodeSize.height - yPosStep;
   for (MenuItemImage* menuItem: ngMenuItems) {
     menuItem->setPosition(currentXPos, currentYPos);
