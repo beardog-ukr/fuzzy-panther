@@ -60,6 +60,10 @@ list(APPEND GAME_SOURCE
      Classes/fifteen/FifteenGameNode.cpp
      Classes/fifteen/FifteenMainScene.cpp
      Classes/fifteen/TokenNode.cpp
+     Classes/flowers/FlowersGameNode.cpp
+     Classes/flowers/FlowersMainScene.cpp
+     Classes/flowers/GameStateKeeper.cpp
+     Classes/flowers/TileNode.cpp
      Classes/main_menu/BackgroundNode.cpp
      Classes/main_menu/MainMenuScene.cpp
      )
@@ -95,6 +99,12 @@ list(APPEND GAME_HEADER
      Classes/fifteen/FifteenMainScene.h
      Classes/fifteen/TokenNode.h
      Classes/fifteen/ZOrderValues.h
+     Classes/flowers/FlowersGameNode.h
+     Classes/flowers/FlowersMainScene.h     
+     Classes/flowers/GameStateKeeper.h
+     Classes/flowers/TileNode.h
+     Classes/flowers/TileType.h
+     Classes/flowers/ZOrderValues.h
      Classes/main_menu/BackgroundNode.h
      Classes/main_menu/MainMenuScene.h
      )

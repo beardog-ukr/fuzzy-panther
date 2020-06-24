@@ -6,6 +6,7 @@
 #include "blocks/BlocksMainScene.h"
 #include "eyes/EyesMainScene.h"
 #include "fifteen/FifteenMainScene.h"
+#include "flowers/FlowersMainScene.h"
 
 #include "SixCatsLogger.h"
 #include "SixCatsLoggerMacro.h"
@@ -346,6 +347,9 @@ void MainMenuScene::mcSwitchToGame(cocos2d::Ref *pSender, const int menuCode) {
   }
   else if (menuCode == kFifteen) {
     newScene = fifteen::FifteenMainScene::createScene(c6);
+  }
+  else if (menuCode == kFlowers) {
+    newScene = flowers::FlowersMainScene::createScene(c6);
   }
   else {
     C6_C2(c6, "Bad Call ", menuCode);
