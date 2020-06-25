@@ -7,6 +7,7 @@
 #include "eyes/EyesMainScene.h"
 #include "fifteen/FifteenMainScene.h"
 #include "flowers/FlowersMainScene.h"
+#include "life/LifeMainScene.h"
 
 #include "SixCatsLogger.h"
 #include "SixCatsLoggerMacro.h"
@@ -331,8 +332,6 @@ void MainMenuScene::switchSideMenu(cocos2d::Node* newMenu) {
 void MainMenuScene::mcSwitchToGame(cocos2d::Ref *pSender, const int menuCode) {
   C6_D2(c6, "here ", menuCode);
 
-
-
   Scene* newScene = nullptr;
   if (menuCode == kAsteroids) {
     newScene = asteroids::AsteroidsScene::createScene();
@@ -354,6 +353,9 @@ void MainMenuScene::mcSwitchToGame(cocos2d::Ref *pSender, const int menuCode) {
   }
   else if (menuCode == kFlowers) {
     newScene = flowers::FlowersMainScene::createScene(c6);
+  }
+  else if (menuCode == kLife) {
+    newScene = life::LifeMainScene::createScene(c6);
   }
   else {
     C6_C2(c6, "Bad Call ", menuCode);

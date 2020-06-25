@@ -64,6 +64,9 @@ list(APPEND GAME_SOURCE
      Classes/flowers/FlowersMainScene.cpp
      Classes/flowers/GameStateKeeper.cpp
      Classes/flowers/TileNode.cpp
+     Classes/life/CellNode.cpp
+     Classes/life/GameNode.cpp
+     Classes/life/LifeMainScene.cpp
      Classes/main_menu/BackgroundNode.cpp
      Classes/main_menu/MainMenuScene.cpp
      )
@@ -105,6 +108,10 @@ list(APPEND GAME_HEADER
      Classes/flowers/TileNode.h
      Classes/flowers/TileType.h
      Classes/flowers/ZOrderValues.h
+     Classes/life/CellNode.h
+     Classes/life/GameNode.h
+     Classes/life/LifeMainScene.h
+     Classes/life/ZOrderValues.h
      Classes/main_menu/BackgroundNode.h
      Classes/main_menu/MainMenuScene.h
      )
