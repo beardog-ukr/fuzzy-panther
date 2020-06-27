@@ -69,6 +69,9 @@ list(APPEND GAME_SOURCE
      Classes/life/LifeMainScene.cpp
      Classes/main_menu/BackgroundNode.cpp
      Classes/main_menu/MainMenuScene.cpp
+     Classes/repeat/DigitNode.cpp
+     Classes/repeat/GameNode.cpp
+     Classes/repeat/RepeatMainScene.cpp
      )
 list(APPEND GAME_HEADER
      Classes/AppDelegate.h
@@ -114,6 +117,10 @@ list(APPEND GAME_HEADER
      Classes/life/ZOrderValues.h
      Classes/main_menu/BackgroundNode.h
      Classes/main_menu/MainMenuScene.h
+     Classes/repeat/DigitNode.h
+     Classes/repeat/GameNode.h
+     Classes/repeat/RepeatMainScene.h
+     Classes/repeat/ZOrderValues.h
      )
 
 if(ANDROID)

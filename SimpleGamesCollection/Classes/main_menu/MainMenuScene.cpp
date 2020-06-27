@@ -8,6 +8,7 @@
 #include "fifteen/FifteenMainScene.h"
 #include "flowers/FlowersMainScene.h"
 #include "life/LifeMainScene.h"
+#include "repeat/RepeatMainScene.h"
 
 #include "SixCatsLogger.h"
 #include "SixCatsLoggerMacro.h"
@@ -238,7 +239,6 @@ bool MainMenuScene::initNewGameMenu() {
     }
   }
 
-
   addChild(newGameMenu, ZO_Side_Menu);
 
   newGameMenu->setPosition(Vec2(cs.width-cs.width/4, cs.height + cs.height/2));
@@ -356,6 +356,9 @@ void MainMenuScene::mcSwitchToGame(cocos2d::Ref *pSender, const int menuCode) {
   }
   else if (menuCode == kLife) {
     newScene = life::LifeMainScene::createScene(c6);
+  }
+  else if (menuCode == kRepeat) {
+    newScene = repeat::RepeatMainScene::createScene(c6);
   }
   else {
     C6_C2(c6, "Bad Call ", menuCode);
