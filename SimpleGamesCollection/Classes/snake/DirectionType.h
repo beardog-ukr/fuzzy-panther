@@ -2,10 +2,10 @@
 
 namespace snake {
 
-enum snake::DirectionType : int {
-  kRegularWestEast,
-  kRegularNorthEast,
-  kRegularEastSouth,
-};
+//enum snake::DirectionType : int {
+//  kRegularWestEast,
+//  kRegularNorthEast,
+//  kRegularEastSouth,
+//};
 
 }

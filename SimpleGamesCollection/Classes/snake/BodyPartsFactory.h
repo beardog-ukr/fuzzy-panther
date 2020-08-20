@@ -7,14 +7,15 @@
 
 namespace snake {
 
-enum DirectionType : int;
+//enum MoveType : int;
 
 class SnakeElementInfo {
 public:
   int previousX;
   int previousY;
-  int gameX;
-  int gameY;
+  int targetX;
+  int targetY;
+  int moveTypeIdx;
 };
 
 class BodyPartsFactory : virtual public SixCatsLoggerLoggable {

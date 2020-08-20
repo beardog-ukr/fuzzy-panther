@@ -193,10 +193,10 @@ void GameNode::processBarrel(const MoveResultType moveResult) {
 //  C6_D4(c6, "Barrel Game Pos is  ", currentBarrelGameX, ":", currentBarrelGameY);
 
   if ((moveResult == kSimpleMove)||(moveResult == kGameFailure)) {
-    currentBarrelNode = bodyPartsFactory->createBarrel(nbp.gameX, nbp.gameY);
+    currentBarrelNode = bodyPartsFactory->createBarrel(nbp.targetX, nbp.targetY);
   }
   else {
-    currentBarrelNode = bodyPartsFactory->createBarrelExplode(nbp.gameX, nbp.gameY);
+    currentBarrelNode = bodyPartsFactory->createBarrelExplode(nbp.targetX, nbp.targetY);
   }
   addChild(currentBarrelNode, kSnakeZOrder);
 }

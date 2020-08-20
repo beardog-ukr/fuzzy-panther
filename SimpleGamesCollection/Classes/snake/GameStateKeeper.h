@@ -1,13 +1,14 @@
 #pragma once
 
 #include <list>
+#include <vector>
 //#include "cocos2d.h"
 #include "SixCatsLoggerLoggable.h"
 
 namespace snake {
 
 
-enum DirectionType : int;
+//enum DirectionType : int;
 class SnakeElementInfo;
 
 enum GameFieldSize {
@@ -45,10 +46,13 @@ public:
 
 protected:
   std::list<SnakeElementInfo> elements;
+  std::vector<MoveType> movesArchive;
+  int movesArchiveCount;
 
   MoveResultType currentMoveResult;
-  void performIdleConsume(const SnakeElementInfo& newHeadInfo);
-  void performSimpleMove(const SnakeElementInfo& newHeadInfo);
+//  void performIdleConsume(const int headX, const int headY);
+  void performIdleConsume(const int headX, const int headY);
+  void performSimpleMove();
 
   MoveType nextMove;
 

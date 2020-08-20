@@ -97,8 +97,8 @@ Sprite* BodyPartsFactory::createIdlePart(const SnakeElementInfo& partInfo) {
     return nullptr;
   }
   Vec2 pos;
-  pos.x = partInfo.gameX*GameNode::kCellSize + GameNode::kCellSize/2;
-  pos.y = partInfo.gameY*GameNode::kCellSize + GameNode::kCellSize/2;
+  pos.x = partInfo.targetX*GameNode::kCellSize + GameNode::kCellSize/2;
+  pos.y = partInfo.targetY*GameNode::kCellSize + GameNode::kCellSize/2;
 
   sp->setPosition(pos);
 
@@ -116,8 +116,8 @@ Sprite* BodyPartsFactory::createMovingPart(const SnakeElementInfo& partInfo) {
     return nullptr;
   }
   Vec2 pos;
-  pos.x = partInfo.gameX*GameNode::kCellSize + GameNode::kCellSize/2;
-  pos.y = partInfo.gameY*GameNode::kCellSize + GameNode::kCellSize/2;
+  pos.x = partInfo.targetX*GameNode::kCellSize + GameNode::kCellSize/2;
+  pos.y = partInfo.targetY*GameNode::kCellSize + GameNode::kCellSize/2;
 
   Vec2 previousPos;
   previousPos.x = partInfo.previousX*GameNode::kCellSize + GameNode::kCellSize/2;
