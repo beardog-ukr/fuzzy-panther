@@ -15,6 +15,20 @@ static const int kMoveDuration = 2.0;
 
 static const string kBarrelIdleAnimationName = "barrel_idle";
 static const string kBarrelDieAnimationName = "barrel_die";
+static const string kElementMoveAnimationName = "element_move";
+static const string kElementMoveVeAnimationName = "element_move_vertical";
+
+static const struct {
+  string barrelIdle;
+  string barrelDie;
+  string elementMove;
+  string elementMoveVertical;
+} kAnimationName = {
+  .barrelIdle = "barrel_idle",
+  .barrelDie = "barrel_die",
+  .elementMove = "element_move",
+  .elementMoveVertical = "element_move_vertical"
+};
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
@@ -125,25 +139,28 @@ Sprite* BodyPartsFactory::createMovingPart(const SnakeElementInfo& partInfo) {
 
   sp->setPosition(previousPos);
 
+  string animName = kAnimationName.elementMove;
+
   // mirror sprite if it moves east
-  if (previousPos.x < pos.x) {
+  if (previousPos.x > pos.x) {
     sp->setScaleX(-1);
+  }
+  else if (previousPos.x == pos.x) {
+    // use
+    animName = kAnimationName.elementMoveVertical;
   }
 
   MoveTo* mt = MoveTo::create(kMoveDuration, pos);
   sp->runAction(mt);
 
-
-
-//  const string anstr = getAnimationNameForType(partInfo.directionType);
-//  Animation* animation = AnimationCache::getInstance()->getAnimation(anstr);
-//  if (animation == nullptr) {
-//    C6_D2(c6, "Failed to find ", anstr);
-//    return sp;
-//  }
-//  Animate* animate = Animate::create(animation);
-//  RepeatForever* ra =  RepeatForever::create(animate);
-//  sp->runAction(ra);
+  Animation* animation = AnimationCache::getInstance()->getAnimation(animName);
+  if (animation == nullptr) {
+    C6_D2(c6, "Failed to find ", animName);
+    return sp;
+  }
+  animation->setDelayPerUnit(kMoveDuration/animation->getTotalDelayUnits());
+  Animate* animate = Animate::create(animation);
+  sp->runAction(animate);
 
   return sp;
 }
