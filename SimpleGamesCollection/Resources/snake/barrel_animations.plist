@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+  <key>animations</key>
+  <dict>
+
+  <key>barrel_idle</key>
+  <dict>
+    <key>delay</key>
+    <real>0.5</real>
+    <key>frames</key>
+    <array>
+      <string>anim_barrel_a.png</string>
+      <string>anim_barrel_b.png</string>
+      <string>anim_barrel_c.png</string>
+    </array>
+  </dict>
+
+  <key>barrel_die</key>
+  <dict>
+    <key>delay</key>
+    <real>0.3</real>
+    <key>frames</key>
+    <array>
+      <string>anim_barrel_b.png</string>
+      <string>anim_barrel_c.png</string>
+      <string>anim_barrel_d1.png</string>
+      <string>anim_barrel_d2.png</string>
+      <string>anim_barrel_d3.png</string>
+      <string>anim_barrel_destroyed.png</string>
+    </array>
+  </dict>  
+
+</dict>
+</dict>
+</plist>

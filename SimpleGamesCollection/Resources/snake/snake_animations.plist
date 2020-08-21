@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+  <key>animations</key>
+  <dict>
+
+  <key>barrel_idle</key>
+  <dict>
+    <key>delay</key>
+    <real>0.5</real>
+    <key>frames</key>
+    <array>
+      <string>snake/barrel/barrel_a.png</string>
+      <string>snake/barrel/barrel_b.png</string>
+      <string>snake/barrel/barrel_c.png</string>
+    </array>
+  </dict>
+
+  <key>barrel_die</key>
+  <dict>
+    <key>delay</key>
+    <real>0.3</real>
+    <key>frames</key>
+    <array>
+      <string>snake/barrel/barrel_b.png</string>
+      <string>snake/barrel/barrel_c.png</string>
+      <string>snake/barrel/barrel_d1.png</string>
+      <string>snake/barrel/barrel_d2.png</string>
+      <string>snake/barrel/barrel_d3.png</string>
+      <string>snake/barrel/barrel_destroyed.png</string>
+    </array>
+  </dict>
+
+  <key>element_move</key>
+  <dict>
+    <key>delay</key>
+    <real>0.5</real>
+    <key>frames</key>
+    <array>
+      <string>snake/wizard/wizard_fly_00.png</string>
+      <string>snake/wizard/wizard_fly_01.png</string>
+      <string>snake/wizard/wizard_fly_02.png</string>
+      <string>snake/wizard/wizard_fly_03.png</string>
+      <string>snake/wizard/wizard_fly_04.png</string>
+      <string>snake/wizard/wizard_fly_05.png</string>
+      <string>snake/wizard/wizard_fly_04.png</string>
+      <string>snake/wizard/wizard_fly_03.png</string>
+      <string>snake/wizard/wizard_fly_02.png</string>
+      <string>snake/wizard/wizard_fly_01.png</string>
+      <string>snake/wizard/wizard_fly_00.png</string>
+    </array>
+  </dict>
+
+  <key>element_move_vertical</key>
+  <dict>
+    <key>delay</key>
+    <real>0.5</real>
+    <key>frames</key>
+    <array>
+      <string>snake/wizard/wizard_fly_00.png</string>
+      <string>snake/wizard/wizard_fly_01.png</string>
+      <string>snake/wizard/wizard_fly_02.png</string>
+      <string>snake/wizard/wizard_fly_01.png</string>
+      <string>snake/wizard/wizard_fly_00.png</string>
+    </array>
+  </dict>
+
+  </dict>
+</dict>
+</plist>

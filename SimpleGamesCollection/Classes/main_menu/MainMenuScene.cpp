@@ -9,6 +9,7 @@
 #include "flowers/FlowersMainScene.h"
 #include "life/LifeMainScene.h"
 #include "repeat/RepeatMainScene.h"
+#include "snake/SnakeMainScene.h"
 
 #include "SixCatsLogger.h"
 #include "SixCatsLoggerMacro.h"
@@ -360,6 +361,10 @@ void MainMenuScene::mcSwitchToGame(cocos2d::Ref *pSender, const int menuCode) {
   else if (menuCode == kRepeat) {
     newScene = repeat::RepeatMainScene::createScene(c6);
   }
+  else if (menuCode == kSnake) {
+    newScene = snake::SnakeMainScene::createScene(c6);
+  }
+
   else {
     C6_C2(c6, "Bad Call ", menuCode);
   }

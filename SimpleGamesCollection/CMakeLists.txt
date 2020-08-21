@@ -72,6 +72,10 @@ list(APPEND GAME_SOURCE
      Classes/repeat/DigitNode.cpp
      Classes/repeat/GameNode.cpp
      Classes/repeat/RepeatMainScene.cpp
+     Classes/snake/BodyPartsFactory.cpp
+     Classes/snake/GameNode.cpp
+     Classes/snake/GameStateKeeper.cpp
+     Classes/snake/SnakeMainScene.cpp
      )
 list(APPEND GAME_HEADER
      Classes/AppDelegate.h
@@ -121,6 +125,11 @@ list(APPEND GAME_HEADER
      Classes/repeat/GameNode.h
      Classes/repeat/RepeatMainScene.h
      Classes/repeat/ZOrderValues.h
+     Classes/snake/BodyPartsFactory.h
+     Classes/snake/GameNode.h
+     Classes/snake/GameStateKeeper.h
+     Classes/snake/SnakeMainScene.h
+     Classes/snake/ZOrderValues.h
      )
 
 if(ANDROID)
