@@ -20,21 +20,7 @@ static const int kMapYLimit = 8;
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-//static int gamePosToMatrixIndex(const int gameX, const int gameY) {
-//  int result = gameX + ((kSnakeGameHeight-1) -gameY)*kSnakeGameWidth;
-//  if ((result <0)||(result>=(kSnakeGameWidth*kSnakeGameHeight))) {
-//    return 0;
-//  }
-
-//  return result;
-//}
-
-//static inline int calculateNextX()
-
-// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
-
 GameStateKeeper::GameStateKeeper() {
-//  initMap();
   debugGameoverCountdown = 4;
   movesArchive.resize(400);
 }
@@ -90,7 +76,7 @@ MoveResultType GameStateKeeper::performNextMove() {
   movesArchiveCount++;
   movesArchive[0] = nextMove;
 
-  SnakeElementInfo currentHeadInfo; //= elements.front();
+  SnakeElementInfo currentHeadInfo;
   currentHeadInfo.moveTypeIdx = -1; //invalid value
   for(const SnakeElementInfo& ei: elements) {
     if (ei.moveTypeIdx ==0) {
@@ -101,7 +87,7 @@ MoveResultType GameStateKeeper::performNextMove() {
 
   if (currentHeadInfo.moveTypeIdx != 0) {
     C6_T1(c6, "Unexpected failure.");
-    return kGameFailure;   //impossible nd unexpected
+    return kGameFailure;   //impossible and unexpected
   }
 
   int newHeadX = currentHeadInfo.targetX;
@@ -151,7 +137,7 @@ void GameStateKeeper::performSimpleMove() {
   for(const SnakeElementInfo& element:elements) {
     if ( (element.targetX>=kMapXLimit) || (element.targetX<=-1) ||
          (element.targetY>=kMapYLimit) || (element.targetY<=-1)) {
-      C6_D4(c6, "skipped element from ", element.targetX, ":", element.targetY);
+      C6_T4(c6, "skipped element from ", element.targetX, ":", element.targetY);
       continue;
     }
 
@@ -183,7 +169,7 @@ void GameStateKeeper::performSimpleMove() {
     newElement.targetX = element.targetX + diffX;
     newElement.targetY = element.targetY + diffY;
 
-    c6->d(__c6_MN__, [element, newElement]() -> std::string {
+    c6->t(__c6_MN__, [element, newElement]() -> std::string {
       ostringstream ss;
       ss << "new element moves " << newElement.previousX << ":" << newElement.previousY
          << " -> " << newElement.targetX << ":" << newElement.targetY;
@@ -216,7 +202,7 @@ void GameStateKeeper::performSimpleMove() {
     }
 
     if (needExtra) {
-      c6->d(__c6_MN__, [extraElement]() -> std::string {
+      c6->t(__c6_MN__, [extraElement]() -> std::string {
         ostringstream ss;
         ss << "extra element moves " << extraElement.previousX << ":" << extraElement.previousY
            << " -> " << extraElement.targetX << ":" << extraElement.targetY;
@@ -273,9 +259,6 @@ void GameStateKeeper::putBarrelToRandom() {
   barrelX = newBarrelX;
   barrelY = newBarrelY;
   C6_D4(c6, "Barrel pos is: ", newBarrelX, ":", newBarrelY);
-
-  barrelX = 9;
-  barrelY = 4;
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .

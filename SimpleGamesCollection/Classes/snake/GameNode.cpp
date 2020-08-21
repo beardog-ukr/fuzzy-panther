@@ -12,8 +12,6 @@ using namespace std;
 
 using namespace snake;
 
-// const int GameNode::kKeysCount = 4;
-
 static const string kPlistFileName = "snake/snake_images.plist";
 static const string kAnimationsPlistFileName = "snake/snake_animations.plist";
 
@@ -21,8 +19,6 @@ static const string kBarrelIdleAnimationName = "barrel_idle";
 static const string kBarrelDieAnimationName = "barrel_die";
 
 static const float kIntervalDuration = 2.0;
-// static const float kTimeShowOneDigit = 3.0;
-// static const float kTimeHideWhiteRocket = 1.0;
 
 const int GameNode::kCellSize = 80;
 
@@ -99,8 +95,6 @@ void GameNode::doOneTick(float) {
     addChild(sp, kSnakeZOrder);
     previousSnakeNodes.push_back(sp);    //
   }
-
-
 }
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
@@ -117,45 +111,10 @@ bool GameNode::initSelf() {
   bodyPartsFactory = make_unique<BodyPartsFactory>();
   bodyPartsFactory->setLogger(c6);
 
-//  currentBarrelGameX = -1;
-//  currentBarrelGameY = -1;
   currentBarrelNode = nullptr;
-
-  // whiteRocket = nullptr;
-
-  // if (!initDigitNodes()) {
-  //   return false;
-  // }
-
-  // if (!initWhiteRocket()) {
-  //   return false;
-  // }
-
-
-//  startGame();
-
-  C6_D1(c6, "d2");
 
   return true;
 }
-
-// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
-
-// bool GameNode::initWhiteRocket() {
-//   const string fn = "repeat/white_rocket/white_rocket_10.png";
-//   whiteRocket = Sprite::createWithSpriteFrameName(fn);
-//   if (whiteRocket == nullptr) {
-//     C6_C2(c6, "Failed to init with ", fn);
-//     return false;      //
-//   }
-
-
-//   whiteRocket->setVisible(false);
-
-//   addChild(whiteRocket, kFireworksZOrder);
-
-//   return true;
-// }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
@@ -178,19 +137,10 @@ bool GameNode::loadSpriteCache(std::shared_ptr<SixCatsLogger> c6) {
 
 void GameNode::processBarrel(const MoveResultType moveResult) {
   const SnakeElementInfo nbp = gameStateKeeper->getBarrelInfo();
-//  if ((nbp.gameX == currentBarrelGameX)&&(nbp.gameY == currentBarrelGameY)) {
-//    if (moveResult != kIdleConsume) {
-//      return;
-//    }
-//  }
 
   if (currentBarrelNode) {
     currentBarrelNode->removeFromParentAndCleanup(true);
   }
-
-//  currentBarrelGameX = nbp.gameX;
-//  currentBarrelGameY = nbp.gameY;
-//  C6_D4(c6, "Barrel Game Pos is  ", currentBarrelGameX, ":", currentBarrelGameY);
 
   if ((moveResult == kSimpleMove)||(moveResult == kGameFailure)) {
     currentBarrelNode = bodyPartsFactory->createBarrel(nbp.targetX, nbp.targetY);
@@ -199,6 +149,10 @@ void GameNode::processBarrel(const MoveResultType moveResult) {
     currentBarrelNode = bodyPartsFactory->createBarrelExplode(nbp.targetX, nbp.targetY);
   }
   addChild(currentBarrelNode, kSnakeZOrder);
+
+  if (moveResult == kIdleConsume) {
+    gameStateKeeper->putBarrelToRandom();
+  }
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .

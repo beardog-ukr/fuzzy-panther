@@ -11,7 +11,9 @@ enum ZOrderValues {
   kFireworksZOrder = 31,
 
   kGameOverImageZOrder = 40,
-  kGameOverMenuZOrder = 41
+  kGameOverMenuZOrder = 41,
+
+  kSceneBorderZOrder = 60
 };
 
 }

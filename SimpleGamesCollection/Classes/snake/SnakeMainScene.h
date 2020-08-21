@@ -18,6 +18,7 @@ protected:
 
   bool init();
   bool initBackground();
+  bool initBackgroundBorder();
   bool initKeyboardProcessing();
   bool initGameNode();
   bool initGameOverMenu();

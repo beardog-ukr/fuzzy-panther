@@ -13,11 +13,6 @@ using namespace snake;
 
 static const int kMoveDuration = 2.0;
 
-static const string kBarrelIdleAnimationName = "barrel_idle";
-static const string kBarrelDieAnimationName = "barrel_die";
-static const string kElementMoveAnimationName = "element_move";
-static const string kElementMoveVeAnimationName = "element_move_vertical";
-
 static const struct {
   string barrelIdle;
   string barrelDie;
@@ -59,9 +54,9 @@ Sprite* BodyPartsFactory::createBarrel(const int x, const int y) const {
   sp->setPosition(pos);
 
 
-  Animation* animation = AnimationCache::getInstance()->getAnimation(kBarrelIdleAnimationName);
+  Animation* animation = AnimationCache::getInstance()->getAnimation(kAnimationName.barrelIdle);
   if (animation == nullptr) {
-    C6_D2(c6, "Failed to find ", kBarrelIdleAnimationName);
+    C6_D2(c6, "Failed to find ", kAnimationName.barrelIdle);
     return sp;
   }
   Animate* animate = Animate::create(animation);
@@ -74,7 +69,7 @@ Sprite* BodyPartsFactory::createBarrel(const int x, const int y) const {
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 Sprite* BodyPartsFactory::createBarrelExplode(const int x, const int y) const {
-  const string tmpfn = "snake/barrel/barrel_a.png";  // "snake/wizard/wizard_fly_01.png";
+  const string tmpfn = "snake/barrel/barrel_a.png";  //
   // ;
   Sprite* sp = Sprite::createWithSpriteFrameName(tmpfn);
   if (sp == nullptr) {
@@ -87,10 +82,9 @@ Sprite* BodyPartsFactory::createBarrelExplode(const int x, const int y) const {
   pos.y = y*GameNode::kCellSize + GameNode::kCellSize/2;
   sp->setPosition(pos);
 
-
-  Animation* animation = AnimationCache::getInstance()->getAnimation(kBarrelDieAnimationName);
+  Animation* animation = AnimationCache::getInstance()->getAnimation(kAnimationName.barrelDie);
   if (animation == nullptr) {
-    C6_D2(c6, "Failed to find ", kBarrelIdleAnimationName);
+    C6_D2(c6, "Failed to find ", kAnimationName.barrelDie);
     return sp;
   }
   Animate* animate = Animate::create(animation);
@@ -122,7 +116,7 @@ Sprite* BodyPartsFactory::createIdlePart(const SnakeElementInfo& partInfo) {
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 Sprite* BodyPartsFactory::createMovingPart(const SnakeElementInfo& partInfo) {
-  const string tmpfn = "snake/wizard/wizard_death_02.png";// "snake/wizard/wizard_fly_01.png";
+  const string tmpfn = "snake/wizard/wizard_death_02.png";//
   // ;
   Sprite* sp = Sprite::createWithSpriteFrameName(tmpfn);
   if (sp == nullptr) {

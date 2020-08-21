@@ -39,6 +39,7 @@ public:
   std::list<SnakeElementInfo> prepareSnakeInfo() const;
 
   SnakeElementInfo getBarrelInfo() const;
+  void putBarrelToRandom();
 
   void setNextMove(const MoveType move);
 
@@ -60,8 +61,6 @@ protected:
   int barrelY;
 
   int debugGameoverCountdown;
-
-  void putBarrelToRandom();
 };
 
 }

@@ -12,6 +12,9 @@ using namespace snake;
 USING_NS_CC;
 using namespace std;
 
+static const int kGameWindowWidth = 1120;
+static const int kGameWindowHeight = 640;
+
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 SnakeMainScene::SnakeMainScene() {
@@ -59,7 +62,7 @@ bool SnakeMainScene::init() {
     return false;
   }
 
-  if (!initBackground()) {
+  if (!initBackgroundBorder()) {
     return false;
   }
 
@@ -106,14 +109,79 @@ bool SnakeMainScene::initBackground() {
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-bool SnakeMainScene::initGameNode() {
-  // const string fn = "repeat/green_background.png";
-  // Sprite* sprite = Sprite::create(fn);
-  // if (sprite == nullptr) {
-  //   C6_D2(c6, "Failed to find ", fn);
-  //   return false;
-  // }
+bool SnakeMainScene::initBackgroundBorder() {
+  const string bFn = "menu/seamless-1657428_640.jpg";
+  BackgroundNode* backgroundSource = BackgroundNode::create(getContentSize(), bFn, c6);
+  if (backgroundSource == nullptr) {
+    return false;
+  }
 
+  backgroundSource->setAnchorPoint(Vec2(0,0));
+  backgroundSource->setPosition(0,0);
+  addChild(backgroundSource);
+
+  const Size cs = getContentSize();
+  const int rtH = (int)round(cs.height);
+  const int rtW = (int)round(cs.width/2 - (kGameWindowWidth/2));
+
+  RenderTexture* rtLeft = RenderTexture::create(rtW, rtH);
+  rtLeft->begin();
+  backgroundSource->visit();
+  rtLeft->end();
+  Director::getInstance()->getRenderer()->render();
+
+  rtLeft->setPosition(rtW/2,rtH/2);
+  addChild(rtLeft, kSceneBorderZOrder);
+
+  RenderTexture* rtUp = RenderTexture::create(kGameWindowWidth, (cs.height-kGameWindowHeight)/2);
+
+  backgroundSource->setPosition(0 - (cs.width/2 - (kGameWindowWidth/2)),
+                                0-(kGameWindowHeight + (cs.height-kGameWindowHeight)/2));
+
+  rtUp->begin();
+  backgroundSource->visit();
+  rtUp->end();
+  Director::getInstance()->getRenderer()->render();
+
+  rtUp->setPosition(cs.width/2,
+                    kGameWindowHeight + (cs.height-kGameWindowHeight)/2 +
+                    (cs.height-kGameWindowHeight)/4);
+  addChild(rtUp, kSceneBorderZOrder);
+
+  RenderTexture* rtDown = RenderTexture::create(kGameWindowWidth, (cs.height-kGameWindowHeight)/2);
+
+  backgroundSource->setPosition(0 - (cs.width/2 - (kGameWindowWidth/2)), 0);
+
+  rtDown->begin();
+  backgroundSource->visit();
+  rtDown->end();
+  Director::getInstance()->getRenderer()->render();
+
+  rtDown->setPosition(cs.width/2,(cs.height-kGameWindowHeight)/4);
+  addChild(rtDown, kSceneBorderZOrder);
+
+  RenderTexture* rtRight = RenderTexture::create(rtW, rtH);
+
+  backgroundSource->setPosition(0 - cs.width/2 - (kGameWindowWidth/2), 0);
+
+  rtRight->begin();
+  backgroundSource->visit();
+  rtRight->end();
+  Director::getInstance()->getRenderer()->render();
+
+  rtRight->setPosition(cs.width - rtW/2,rtH/2);
+  addChild(rtRight, kSceneBorderZOrder);
+
+
+  // --- finally remove background, it's not needed anymore
+  backgroundSource->removeFromParent();
+
+  return true;
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+bool SnakeMainScene::initGameNode() {
   gameNode = GameNode::create(c6);
   if (gameNode == nullptr) {
     return false;
