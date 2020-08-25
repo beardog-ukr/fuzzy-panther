@@ -7,7 +7,7 @@ enum ZOrderValues {
 
   kGameBackgroundZOrder = 20,
 
-  kDigitsZOrder = 30,
+  kActorZOrder = 30,
   kFireworksZOrder = 31,
 
   kGameOverImageZOrder = 40,

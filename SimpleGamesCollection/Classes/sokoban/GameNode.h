@@ -9,7 +9,7 @@
 
 namespace sokoban {
 
-class DigitNode;
+class ActorNode;
 
 class GameNode : public cocos2d::Node, virtual public SixCatsLoggerLoggable {
 public:
@@ -32,8 +32,21 @@ protected:
   std::list<std::pair<int, int> > targetsInfo;
   std::pair<int, int> personInfo;
 
+  cocos2d::TMXTiledMap* mapNode;
+
+  void processMoveRequest(const int diffX, const int diffY);
+
+  void processActionEnd(float dt);
+
+  ActorNode* actor;
+
+  bool actionInProcess;
+  bool hasBufferedSomething;
+  cocos2d::EventKeyboard::KeyCode bufferedKeyCode;
 
 
+  bool initActorNode();
+  bool initMapNode();
   bool initSelf();
 };
 

@@ -21,7 +21,7 @@ SokobanMainScene::SokobanMainScene() {
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 SokobanMainScene::~SokobanMainScene() {
-  // GameNode::unloadSpriteCache();
+  GameNode::unloadSpriteCache();
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -55,9 +55,9 @@ bool SokobanMainScene::init() {
     return false;
   }
 
-  // if (!GameNode::loadSpriteCache(c6)) {
-  //   return false;
-  // }
+  if (!GameNode::loadSpriteCache(c6)) {
+    return false;
+  }
 
   if (!initBackground()) {
     return false;
@@ -260,11 +260,11 @@ void SokobanMainScene::onKeyPressedScene(EventKeyboard::KeyCode keyCode, Event *
     //   this->processGameOver(gameResult);      //
     // });
   }
-  else if ((EventKeyboard::KeyCode::KEY_1 == keyCode)||
-           (EventKeyboard::KeyCode::KEY_2 == keyCode)||
-           (EventKeyboard::KeyCode::KEY_3 == keyCode)||
-           (EventKeyboard::KeyCode::KEY_4 == keyCode)) {
-    // gameNode->processKey(keyCode);
+  else if ((EventKeyboard::KeyCode::KEY_DOWN_ARROW == keyCode)||
+           (EventKeyboard::KeyCode::KEY_UP_ARROW == keyCode)||
+           (EventKeyboard::KeyCode::KEY_LEFT_ARROW == keyCode)||
+           (EventKeyboard::KeyCode::KEY_RIGHT_ARROW == keyCode)) {
+    gameNode->processKey(keyCode);
   }
   else if (EventKeyboard::KeyCode::KEY_X == keyCode) {
     c6->d(__c6_MN__, "Need to get out.");

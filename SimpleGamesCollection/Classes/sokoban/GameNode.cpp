@@ -1,4 +1,5 @@
 #include "sokoban/GameNode.h"
+#include "sokoban/ActorNode.h"
 #include "sokoban/ZOrderValues.h"
 
 #include "SixCatsLogger.h"
@@ -10,12 +11,12 @@ using namespace std;
 
 using namespace sokoban;
 
-// static const string kPlistFileName = "repeat/repeat.plist";
-// static const string kAnimationsPlistFileName = "repeat/animations.plist";
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-// static const float kTimeWaitOneDigit = 3.0;
-// static const float kTimeShowOneDigit = 3.0;
-// static const float kTimeHideWhiteRocket = 1.0;
+static const string kPlistFileName = "sokoban/movables.plist";
+static const string kAnimationsPlistFileName = "sokoban/animations.plist";
+
+const float kIterationDuration = 0.8;
 
 static const struct {
   int box;
@@ -41,11 +42,12 @@ static const struct {
   .target = "meta_target"
 };
 
-
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 GameNode::GameNode() {
-//
+  actor = nullptr;//
+  actionInProcess = false;
+  hasBufferedSomething = false;
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -80,20 +82,40 @@ GameNode* GameNode::create(std::shared_ptr<SixCatsLogger> inc6) {
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+bool GameNode::initActorNode() {
+  actor = ActorNode::create(kIterationDuration, c6);
+  if (actor == nullptr) {
+    return false;
+  }
+//  actor->setAnchorPoint(Vec2(0.5,0.5));
+  mapNode->addChild(actor, kActorZOrder);
+
+  actor->setGamePosition(personInfo.first, personInfo.second);
+
+  return true;
+}
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-bool GameNode::initSelf() {
+bool GameNode::initMapNode() {
   const char mapFilename[] = "sokoban/map01.tmx";
 
-  TMXTiledMap* mapNode = TMXTiledMap::create(mapFilename);
+//  TMXTiledMap*
+  mapNode = TMXTiledMap::create(mapFilename);
   if (mapNode == nullptr) {
     C6_D2(c6, "Error while loading: ", mapFilename);
     return false;
   }
   mapNode->setAnchorPoint(Vec2(0.5,0.5));
   addChild(mapNode, kGameBackgroundZOrder);
+
+
+  //TODO: check boundary cases:
+  // targets amount equal to boxes
+  // one person
+  // boxes, person, targets non-zero
+  // all coordinates in range (already) and do not intersect
+
 
   if (!loadMetaInfo(mapNode, kMapMetaCodeName.box, kMapMetaCode.box, boxesInfo)) {
     C6_D1(c6, "Failed to load boxes starting points");
@@ -122,11 +144,20 @@ bool GameNode::initSelf() {
     return false;
   }
 
-  //TODO: check boundary cases:
-  // targets amount equal to boxes
-  // one person
-  // boxes, person, targets non-zero
-  // all coordinates in range (already) and do not intersect
+  // finally
+  return true;
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+bool GameNode::initSelf() {
+  if (!initMapNode()) {
+    return false;
+  }
+
+  if (!initActorNode()) {
+    return false;
+  }
 
   return true;
 }
@@ -214,50 +245,100 @@ bool GameNode::loadMetaInfo(TMXTiledMap* const mapNode,
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 bool GameNode::loadSpriteCache(std::shared_ptr<SixCatsLogger> c6) {
-  // SpriteFrameCache* const sfc = SpriteFrameCache::getInstance();
+  SpriteFrameCache* const sfc = SpriteFrameCache::getInstance();
 
-  // sfc->addSpriteFramesWithFile(kPlistFileName);
-  // if (!sfc->isSpriteFramesWithFileLoaded(kPlistFileName)) {
-  //   C6_C2(c6, "Failed to find ", kPlistFileName);
-  //   return false;
-  // }
+  sfc->addSpriteFramesWithFile(kPlistFileName);
+  if (!sfc->isSpriteFramesWithFileLoaded(kPlistFileName)) {
+    C6_C2(c6, "Failed to find ", kPlistFileName);
+    return false;
+  }
 
-  // AnimationCache * const ac = AnimationCache::getInstance();
-  // ac->addAnimationsWithFile(kAnimationsPlistFileName);
+  AnimationCache * const ac = AnimationCache::getInstance();
+  ac->addAnimationsWithFile(kAnimationsPlistFileName);
 
   return true;
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
+void GameNode::processKey(cocos2d::EventKeyboard::KeyCode keyCode) {
+  C6_D2(c6, "here for ", (int)keyCode);
+
+  if (actionInProcess) {
+    C6_D1(c6, "Action ignored and buffered");
+    hasBufferedSomething = true;
+    bufferedKeyCode = keyCode;
+    return;
+  }
+
+  int diffX = 0;
+  int diffY = 0;
+
+  if (keyCode == EventKeyboard::KeyCode::KEY_DOWN_ARROW) {
+    diffY = -1;
+  }
+  else if (keyCode == EventKeyboard::KeyCode::KEY_UP_ARROW) {
+    diffY = 1;
+  }
+  else if (keyCode == EventKeyboard::KeyCode::KEY_LEFT_ARROW) {
+    diffX = -1;
+  }
+  else if (keyCode == EventKeyboard::KeyCode::KEY_RIGHT_ARROW) {
+    diffX = 1;
+  }
+
+  if ((diffX!=0)||(diffY!=0)) {
+    processMoveRequest(diffX, diffY);
+  }
+}
+
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-void GameNode::processKey(cocos2d::EventKeyboard::KeyCode keyCode) {
+void GameNode::processActionEnd(float ) {
+  actionInProcess = false;
 
+  if (hasBufferedSomething) {
+    hasBufferedSomething = false;
+    processKey(bufferedKeyCode);
+  }
+}
 
-  // //check if key is correct
-  // bool guessed = false;
-  // if (keyCode == EventKeyboard::KeyCode::KEY_1) {
-  //   guessed = (gameSeq[currentSeqElemIdx] == 1);
-  // }
-  // else if (keyCode == EventKeyboard::KeyCode::KEY_2) {
-  //   guessed = (gameSeq[currentSeqElemIdx] == 2);
-  // }
-  // else if (keyCode == EventKeyboard::KeyCode::KEY_3) {
-  //   guessed = (gameSeq[currentSeqElemIdx] == 3);
-  // }
-  // else if (keyCode == EventKeyboard::KeyCode::KEY_4) {
-  //   guessed = (gameSeq[currentSeqElemIdx] == 4);
-  // }
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
+void GameNode::processMoveRequest(const int diffX, const int diffY) {
+  pair<int, int> newPos;
+  newPos.first = personInfo.first + diffX;
+  newPos.second = personInfo.second + diffY;
+
+  C6_D4(c6, "NewPos is ", newPos.first, ":", newPos.second);
+
+  bool prohibitMove = false;
+  for(const auto& obstacle: obstaclesInfo) {
+    if ((obstacle.first == newPos.first)&&(obstacle.second == newPos.second)) {
+      C6_D4(c6, "Obstacle at ", newPos.first, ":", newPos.second);
+      prohibitMove = true;
+      break;
+    }
+  }
+
+  if (prohibitMove) {
+    return;
+  }
+
+  personInfo = newPos;
+  actor->doChangePositionTo(personInfo.first, personInfo.second);
+
+  actionInProcess = true;
+  schedule(CC_SCHEDULE_SELECTOR(GameNode::processActionEnd), kIterationDuration, 0, 0);
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 void GameNode::unloadSpriteCache() {
-  // AnimationCache::getInstance()->removeAnimation(DigitNode::kFireRingAnimationName);
+  ///AnimationCache::getInstance()->removeAnimation(DigitNode::kFireRingAnimationName);
+  ActorNode::unloadAnimations();
 
-  // SpriteFrameCache::getInstance()->removeSpriteFramesFromFile(kPlistFileName);
+  SpriteFrameCache::getInstance()->removeSpriteFramesFromFile(kPlistFileName);
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .

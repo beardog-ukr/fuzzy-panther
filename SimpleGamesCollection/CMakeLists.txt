@@ -76,6 +76,8 @@ list(APPEND GAME_SOURCE
      Classes/snake/GameNode.cpp
      Classes/snake/GameStateKeeper.cpp
      Classes/snake/SnakeMainScene.cpp
+     Classes/sokoban/ActorNode.cpp
+     Classes/sokoban/BoxNode.cpp
      Classes/sokoban/GameNode.cpp
      Classes/sokoban/SokobanMainScene.cpp
      )
@@ -132,6 +134,8 @@ list(APPEND GAME_HEADER
      Classes/snake/GameStateKeeper.h
      Classes/snake/SnakeMainScene.h
      Classes/snake/ZOrderValues.h
+     Classes/sokoban/ActorNode.h
+     Classes/sokoban/BoxNode.h
      Classes/sokoban/GameNode.h
      Classes/sokoban/SokobanMainScene.h
      Classes/sokoban/ZOrderValues.h
