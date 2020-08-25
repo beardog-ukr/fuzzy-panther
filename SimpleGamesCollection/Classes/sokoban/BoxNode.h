@@ -13,6 +13,8 @@ public:
   void setGamePosition(const int gameX, const int gameY);
   void doChangePositionTo(const int gameX, const int gameY);
 
+  void doAlignAgainst(const int gameX, const int gameY);
+
   int getValue() const;
 
 protected:
@@ -24,7 +26,7 @@ protected:
   int gameX;
   int gameY;
 
-  float tileSize;
+//  std::string currentDFN;//current default frame name
 
   cocos2d::Vec2 calculatePosition(const int x, const int y) const;
 };

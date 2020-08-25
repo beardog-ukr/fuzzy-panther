@@ -9,7 +9,8 @@ USING_NS_CC;
 using namespace std;
 
 const int kTileSize = 48;
-//const float terationDuration = 0.7;
+
+const string kDefaultFrameName = "sokoban/kfm/kfm_walk_south_00";
 
 static const struct {
   string north;
@@ -39,9 +40,7 @@ ActorNode::~ActorNode() {
 
 Vec2 ActorNode::calculatePosition(const int x, const int y) const {
   Vec2 result = {.x = kTileSize/2, .y = kTileSize/2};
-//  if ((x>=4) ||(x<0) ||(y>=4) ||(y<0) ) {
-//    return result;
-//  }
+  //  TODO: check boundary values
   //
   result.x = result.x + x*kTileSize;
   result.y = result.y + y*kTileSize;
@@ -99,7 +98,7 @@ void ActorNode::doChangePositionTo(const int newGameX, const int newGameY) {
   Animate* animate = Animate::create(animation);
 
   CallFunc *cf = CallFunc::create([this]() {
-    this->setSpriteFrame("sokoban/kfm/kfm_walk_south_00");
+    this->setSpriteFrame(kDefaultFrameName);
   });
 
   Sequence* seq = Sequence::create(animate, cf, nullptr);
@@ -116,14 +115,10 @@ void ActorNode::doChangePositionTo(const int newGameX, const int newGameY) {
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 bool ActorNode::initSelf() {
-  const string fn = "sokoban/kfm_walk_south_02.png";
-  if (!initWithFile(fn)) {
-    C6_C2(c6, "Failed to init with file ", fn);
+  if (!initWithSpriteFrameName(kDefaultFrameName)) {
+    C6_C2(c6, "Failed to init with file ", kDefaultFrameName);
     return false;    //
   }
-
-//  const Size itemSize = getContentSize();
-//  tileSize = itemSize.height;
 
   return true;
 }

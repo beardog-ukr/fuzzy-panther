@@ -8,6 +8,22 @@ using namespace sokoban;
 USING_NS_CC;
 using namespace std;
 
+const int kTileSize = 48;
+
+static const struct {
+  string north;
+  string south;
+  string east;
+  string west;
+} kDefaultFrameNames = {
+  .north = "sokoban/beetle/beetle5a_sn01",
+  .south = "sokoban/beetle/beetle5a_ns01",
+  .east = "sokoban/beetle/beetle5a_we01",
+  .west = "sokoban/beetle/beetle5a_ew01"
+};
+
+//const string kDefaultFrameName = "sokoban/beetle/beetle5a_sn01";
+
 const float iterationDuration = 0.7;
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -24,14 +40,45 @@ BoxNode::~BoxNode() {
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-Vec2 BoxNode::calculatePosition(const int x, const int y) const {
-  Vec2 result = {.x = tileSize/2, .y = tileSize/2};
-  if ((x>=4) ||(x<0) ||(y>=4) ||(y<0) ) {
-    return result;
+void BoxNode::doAlignAgainst(const int actorX, const int actorY) {
+  string newDFN = "";//kDefaultFrameNames.north;
+
+  do {
+    if (actorX == gameX) {
+      if (actorY > gameY) {
+        newDFN = kDefaultFrameNames.north;
+      }
+      else {
+        newDFN = kDefaultFrameNames.south;
+      }
+      break;
+    }
+
+    if (actorY == gameY) {
+      if (actorX > gameX) {
+        newDFN = kDefaultFrameNames.east;
+      }
+      else {
+        newDFN = kDefaultFrameNames.west;
+      }
+      break;
+    }
+
+  } while(false);
+
+  if ("" != newDFN) {
+    setSpriteFrame(newDFN);
+//    currentDFN = newDFN;
   }
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+Vec2 BoxNode::calculatePosition(const int x, const int y) const {
+  Vec2 result = {.x = kTileSize/2, .y = kTileSize/2};
   //
-  result.x = result.x + x*tileSize;
-  result.y = result.y + y*tileSize;
+  result.x = result.x + x*kTileSize;
+  result.y = result.y + y*kTileSize;
 
   return result;
 }
@@ -75,14 +122,11 @@ void BoxNode::doChangePositionTo(const int newGameX, const int newGameY) {
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 bool BoxNode::initSelf() {
-  const string fn = "sokoban/beetle5a_sn05.png";
-  if (!initWithFile(fn)) {
-    C6_C2(c6, "Failed to init with file ", fn);
+//  const string fn = "sokoban/beetle5a_sn05.png";
+  if (!initWithSpriteFrameName(kDefaultFrameNames.north)) {
+    C6_C2(c6, "Failed to init with file ", kDefaultFrameNames.north);
     return false;    //
   }
-
-  const Size itemSize = getContentSize();
-  tileSize = itemSize.width;
 
   return true;
 }

@@ -10,6 +10,7 @@
 namespace sokoban {
 
 class ActorNode;
+class BoxNode;
 
 class GameNode : public cocos2d::Node, virtual public SixCatsLoggerLoggable {
 public:
@@ -28,12 +29,21 @@ protected:
                     const std::string& layerName, const int metaCode,
                     std::list<std::pair<int, int> >& data);
   std::list<std::pair<int, int> > obstaclesInfo;
-  std::list<std::pair<int, int> > boxesInfo;
+
+  struct BoxInfo {
+    int gameX;
+    int gameY;
+    BoxNode* node;
+  };
+  std::list<BoxInfo> boxesInfo;
+
   std::list<std::pair<int, int> > targetsInfo;
   std::pair<int, int> personInfo;
 
   cocos2d::TMXTiledMap* mapNode;
 
+  void doActorAttack(const int diffX, const int diffY);
+  bool doMoveBox(const int boxX, const int boxY, const int diffX, const int diffY);
   void processMoveRequest(const int diffX, const int diffY);
 
   void processActionEnd(float dt);
@@ -46,6 +56,7 @@ protected:
 
 
   bool initActorNode();
+  bool initBoxNodes();
   bool initMapNode();
   bool initSelf();
 };

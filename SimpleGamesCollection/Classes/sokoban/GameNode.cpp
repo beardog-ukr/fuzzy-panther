@@ -1,5 +1,6 @@
 #include "sokoban/GameNode.h"
 #include "sokoban/ActorNode.h"
+#include "sokoban/BoxNode.h"
 #include "sokoban/ZOrderValues.h"
 
 #include "SixCatsLogger.h"
@@ -78,7 +79,42 @@ GameNode* GameNode::create(std::shared_ptr<SixCatsLogger> inc6) {
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
+void GameNode::doActorAttack(const int diffX, const int diffY) {
+  //
+}
 
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+bool GameNode::doMoveBox(const int boxX, const int boxY, const int diffX, const int diffY) {
+  int newBoxX = boxX + diffX;
+  int newBoxY = boxY+ diffY;
+
+  for(const auto& obstacle: obstaclesInfo) {
+    if ((obstacle.first == newBoxX)&&(obstacle.second == newBoxY)) {
+      C6_D4(c6, "Obstacle for box at ", obstacle.first, ":", obstacle.second);
+      return false;
+    }
+  }
+
+  for(const auto& boxInfo: boxesInfo) {
+    if ((boxInfo.gameX == newBoxX)&&(boxInfo.gameY == newBoxY)) {
+      C6_D4(c6, "Another box at ", newBoxX, ":", newBoxY);
+      return false;
+    }
+  }
+
+  for(auto& boxInfo: boxesInfo) {
+    if ((boxInfo.gameX == boxX)&&(boxInfo.gameY == boxY)) {
+      boxInfo.gameX = newBoxX;
+      boxInfo.gameY = newBoxY;
+
+      boxInfo.node->doChangePositionTo(newBoxX, newBoxY);
+      break;
+    }
+  }
+
+  return true;//box moved successfully
+}
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
@@ -87,13 +123,29 @@ bool GameNode::initActorNode() {
   if (actor == nullptr) {
     return false;
   }
-//  actor->setAnchorPoint(Vec2(0.5,0.5));
+
   mapNode->addChild(actor, kActorZOrder);
 
   actor->setGamePosition(personInfo.first, personInfo.second);
 
   return true;
 }
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+bool GameNode::initBoxNodes() {
+  for(auto& boxInfo: boxesInfo) {
+    boxInfo.node = BoxNode::create(c6);
+    if (boxInfo.node == nullptr) {
+      return false;
+    }
+    boxInfo.node->setGamePosition(boxInfo.gameX, boxInfo.gameY);
+    mapNode->addChild(boxInfo.node, kActorZOrder);
+  }
+
+  return true;
+}
+
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
@@ -116,10 +168,17 @@ bool GameNode::initMapNode() {
   // boxes, person, targets non-zero
   // all coordinates in range (already) and do not intersect
 
-
-  if (!loadMetaInfo(mapNode, kMapMetaCodeName.box, kMapMetaCode.box, boxesInfo)) {
+  std::list<std::pair<int, int> > tmpBoxesInfo;
+  if (!loadMetaInfo(mapNode, kMapMetaCodeName.box, kMapMetaCode.box, tmpBoxesInfo)) {
     C6_D1(c6, "Failed to load boxes starting points");
     return false;
+  }
+  for (const auto& tmpbi: tmpBoxesInfo) {
+    BoxInfo binfo;
+    binfo.gameX = tmpbi.first;
+    binfo.gameY = tmpbi.second;
+    binfo.node = nullptr;
+    boxesInfo.push_back(binfo);
   }
 
   if (!loadMetaInfo(mapNode, kMapMetaCodeName.obstacle, kMapMetaCode.obstacle, obstaclesInfo)) {
@@ -156,6 +215,10 @@ bool GameNode::initSelf() {
   }
 
   if (!initActorNode()) {
+    return false;
+  }
+
+  if (!initBoxNodes()) {
     return false;
   }
 
@@ -204,32 +267,6 @@ bool GameNode::loadMetaInfo(TMXTiledMap* const mapNode,
         data.push_back(dataElement);
         C6_D6(c6, "found meta code ", metaCode, " at ", dataElement.first, ":", dataElement.second);
       }
-
-
-
-//      switch (metaCode) {
-//      case MMC_OBSTACLE:
-//        obstaclesMap[obstaclesMapWidth*(obstaclesMapHeight - tileY - 1) + tileX] = true;
-//        break;
-
-//      case MMC_MAGE_START:
-//        mageStartX   = tileX;
-//        mageStartY   = mapSize.height - tileY - 1;
-//        break;
-
-//      case MMC_KNIGHT_START:
-//        knightStartX   = tileX;
-//        knightStartY   = mapSize.height - tileY - 1;
-
-//        currentKnightX = knightStartX;
-//        currentKnightY = knightStartY;
-//        break;
-
-//        // Note there is no suitable default action here
-//        // default:
-//      }
-
-
     }
   }
 
@@ -237,10 +274,6 @@ bool GameNode::loadMetaInfo(TMXTiledMap* const mapNode,
 
   return true;
 }
-
-// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
-
-// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
@@ -297,6 +330,10 @@ void GameNode::processKey(cocos2d::EventKeyboard::KeyCode keyCode) {
 void GameNode::processActionEnd(float ) {
   actionInProcess = false;
 
+  for(auto& boxInfo: boxesInfo) {
+    boxInfo.node->doAlignAgainst(personInfo.first, personInfo.second);
+  }
+
   if (hasBufferedSomething) {
     hasBufferedSomething = false;
     processKey(bufferedKeyCode);
@@ -311,6 +348,22 @@ void GameNode::processMoveRequest(const int diffX, const int diffY) {
   newPos.second = personInfo.second + diffY;
 
   C6_D4(c6, "NewPos is ", newPos.first, ":", newPos.second);
+
+  bool needToPush = false;
+  for(const auto& boxInfo: boxesInfo) {
+    if ((boxInfo.gameX == newPos.first)&&(boxInfo.gameY == newPos.second)) {
+      C6_D4(c6, "Box at ", newPos.first, ":", newPos.second);
+      needToPush = true;
+      break;
+    }
+  }
+
+  if (needToPush) {
+    if (doMoveBox(newPos.first, newPos.second, diffX, diffY)) {
+      doActorAttack(diffX, diffY);
+    }
+    return;
+  }
 
   bool prohibitMove = false;
   for(const auto& obstacle: obstaclesInfo) {
@@ -335,9 +388,7 @@ void GameNode::processMoveRequest(const int diffX, const int diffY) {
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 void GameNode::unloadSpriteCache() {
-  ///AnimationCache::getInstance()->removeAnimation(DigitNode::kFireRingAnimationName);
   ActorNode::unloadAnimations();
-
   SpriteFrameCache::getInstance()->removeSpriteFramesFromFile(kPlistFileName);
 }
 
