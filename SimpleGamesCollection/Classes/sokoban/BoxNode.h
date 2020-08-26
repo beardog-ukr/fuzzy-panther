@@ -15,8 +15,6 @@ public:
 
   void doAlignAgainst(const int gameX, const int gameY);
 
-  int getValue() const;
-
 protected:
   BoxNode();
   virtual ~BoxNode();

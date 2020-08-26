@@ -1,6 +1,7 @@
 #include "sokoban/GameNode.h"
 #include "sokoban/ActorNode.h"
 #include "sokoban/BoxNode.h"
+#include "sokoban/TargetNode.h"
 #include "sokoban/ZOrderValues.h"
 
 #include "SixCatsLogger.h"
@@ -42,6 +43,9 @@ static const struct {
   .person = "meta_person",
   .target = "meta_target"
 };
+
+const string kOpenTargetSpriteName = "sokoban/target/open";
+const string kFilledTargetSpriteName = "sokoban/target/filled";
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
@@ -113,6 +117,8 @@ bool GameNode::doMoveBox(const int boxX, const int boxY, const int diffX, const 
     }
   }
 
+  reevaluateTargets();
+
   return true;//box moved successfully
 }
 
@@ -168,6 +174,7 @@ bool GameNode::initMapNode() {
   // boxes, person, targets non-zero
   // all coordinates in range (already) and do not intersect
 
+  // --- boxes
   std::list<std::pair<int, int> > tmpBoxesInfo;
   if (!loadMetaInfo(mapNode, kMapMetaCodeName.box, kMapMetaCode.box, tmpBoxesInfo)) {
     C6_D1(c6, "Failed to load boxes starting points");
@@ -181,11 +188,13 @@ bool GameNode::initMapNode() {
     boxesInfo.push_back(binfo);
   }
 
+  // --- obstacles
   if (!loadMetaInfo(mapNode, kMapMetaCodeName.obstacle, kMapMetaCode.obstacle, obstaclesInfo)) {
     C6_D1(c6, "Failed to load obstacles");
     return false;
   }
 
+  // --- person starting point
   std::list<std::pair<int, int> > tmpPersonInfo;
   if (!loadMetaInfo(mapNode, kMapMetaCodeName.person, kMapMetaCode.person, tmpPersonInfo)) {
     C6_D1(c6, "Failed to load person info");
@@ -198,9 +207,18 @@ bool GameNode::initMapNode() {
   personInfo.first = tmpPersonInfo.front().first;
   personInfo.second = tmpPersonInfo.front().second;
 
-  if (!loadMetaInfo(mapNode, kMapMetaCodeName.target, kMapMetaCode.target, targetsInfo)) {
+  // --- targets
+  std::list<std::pair<int, int> > tmpTargetsInfo;
+  if (!loadMetaInfo(mapNode, kMapMetaCodeName.target, kMapMetaCode.target, tmpTargetsInfo)) {
     C6_D1(c6, "Failed to load targets");
     return false;
+  }
+  for (const auto& tmpti: tmpTargetsInfo) {
+    TargetInfo tInfo;
+    tInfo.gameX = tmpti.first;
+    tInfo.gameY = tmpti.second;
+    tInfo.node = nullptr;
+    targetsInfo.push_back(tInfo);
   }
 
   // finally
@@ -221,6 +239,30 @@ bool GameNode::initSelf() {
   if (!initBoxNodes()) {
     return false;
   }
+
+  if (!initTargetNodes()) {
+    return false;
+  }
+
+
+  return true;
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+bool GameNode::initTargetNodes() {
+  for(auto& targetInfo: targetsInfo) {
+    targetInfo.node = TargetNode::create(c6);
+    if (targetInfo.node == nullptr) {
+      return false;
+    }
+
+    targetInfo.node->setGamePosition(targetInfo.gameX, targetInfo.gameY);
+
+    mapNode->addChild(targetInfo.node, kTargetZOrder);
+  }
+
+  reevaluateTargets();
 
   return true;
 }
@@ -383,6 +425,22 @@ void GameNode::processMoveRequest(const int diffX, const int diffY) {
 
   actionInProcess = true;
   schedule(CC_SCHEDULE_SELECTOR(GameNode::processActionEnd), kIterationDuration, 0, 0);
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+void GameNode::reevaluateTargets() {
+  for(auto& targetInfo: targetsInfo) {
+    bool stateIsFilled = false;
+    for (const auto& boxInfo: boxesInfo) {
+      if ((targetInfo.gameX==boxInfo.gameX)&&(targetInfo.gameY == boxInfo.gameY)) {
+        stateIsFilled = true;
+        break;
+      }
+    }
+
+    targetInfo.node->setFilled(stateIsFilled);
+  }
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .

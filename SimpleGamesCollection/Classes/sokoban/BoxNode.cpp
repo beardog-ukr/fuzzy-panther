@@ -22,7 +22,17 @@ static const struct {
   .west = "sokoban/beetle/beetle5a_ew01"
 };
 
-//const string kDefaultFrameName = "sokoban/beetle/beetle5a_sn01";
+static const struct {
+  string north;
+  string south;
+  string east;
+  string west;
+} kMoveAnimationNames = {
+  .north = "box_move_north",
+  .south = "box_move_south",
+  .east = "box_move_east",
+  .west = "box_move_west"
+};
 
 const float iterationDuration = 0.7;
 
@@ -109,10 +119,33 @@ BoxNode* BoxNode::create(shared_ptr<SixCatsLogger> c6) {
 void BoxNode::doChangePositionTo(const int newGameX, const int newGameY) {
   Vec2 newPosition = calculatePosition(newGameX, newGameY);
 
-  RotateBy* ra = RotateBy::create(iterationDuration, 360);
+  string an;
+  if (newGameX == gameX) {
+    if (newGameY > gameY) {
+      an = kMoveAnimationNames.north;
+    }
+    else {
+      an = kMoveAnimationNames.south;
+    }
+  }
+  else {
+    if (newGameX > gameX) {
+      an = kMoveAnimationNames.east;
+    }
+    else {
+      an = kMoveAnimationNames.west;
+    }
+  }
+  Animation* animation = AnimationCache::getInstance()->getAnimation(an);
+  animation->setDelayPerUnit(iterationDuration/animation->getTotalDelayUnits());
+  Animate* animate = Animate::create(animation);
+
+  runAction(animate);
+
+//  RotateBy* ra = RotateBy::create(iterationDuration, 360);
   MoveTo* ma = MoveTo::create(iterationDuration, newPosition);
 
-  runAction(ra);
+//  runAction(ra);
   runAction(ma);
 
   gameX = newGameX;

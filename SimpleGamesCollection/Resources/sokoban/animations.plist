@@ -5,6 +5,63 @@
   <key>animations</key>
   <dict>
 
+  <key>box_move_north</key>
+  <dict>
+    <key>delay</key>
+    <real>0.7</real>
+    <key>frames</key>
+    <array>
+      <string>sokoban/beetle/beetle5a_ns05</string>
+      <string>sokoban/beetle/beetle5a_ns04</string>
+      <string>sokoban/beetle/beetle5a_ns03</string>
+      <string>sokoban/beetle/beetle5a_ns02</string>
+      <string>sokoban/beetle/beetle5a_ns01</string>
+    </array>
+  </dict>
+
+  <key>box_move_south</key>
+  <dict>
+    <key>delay</key>
+    <real>0.7</real>
+    <key>frames</key>
+    <array>
+      <string>sokoban/beetle/beetle5a_sn05</string>
+      <string>sokoban/beetle/beetle5a_sn04</string>
+      <string>sokoban/beetle/beetle5a_sn03</string>
+      <string>sokoban/beetle/beetle5a_sn02</string>
+      <string>sokoban/beetle/beetle5a_sn01</string>
+    </array>
+  </dict>
+
+  <key>box_move_west</key>
+  <dict>
+    <key>delay</key>
+    <real>0.7</real>
+    <key>frames</key>
+    <array>
+      <string>sokoban/beetle/beetle5a_we05</string>
+      <string>sokoban/beetle/beetle5a_we04</string>
+      <string>sokoban/beetle/beetle5a_we03</string>
+      <string>sokoban/beetle/beetle5a_we02</string>
+      <string>sokoban/beetle/beetle5a_we01</string>
+    </array>
+  </dict>
+
+  <key>box_move_east</key>
+  <dict>
+    <key>delay</key>
+    <real>0.7</real>
+    <key>frames</key>
+    <array>
+      <string>sokoban/beetle/beetle5a_ew05</string>
+      <string>sokoban/beetle/beetle5a_ew04</string>
+      <string>sokoban/beetle/beetle5a_ew03</string>
+      <string>sokoban/beetle/beetle5a_ew02</string>
+      <string>sokoban/beetle/beetle5a_ew01</string>
+    </array>
+  </dict>
+
+
   <key>actor_move_north</key>
   <dict>
     <key>delay</key>
@@ -56,6 +113,60 @@
       <string>sokoban/kfm/kfm_walk_west_03</string>
     </array>
   </dict>
+
+
+  <key>actor_attack_north</key>
+  <dict>
+    <key>delay</key>
+    <real>0.7</real>
+    <key>frames</key>
+    <array>
+      <string>sokoban/kfm/kfm_attack_north_00</string>
+      <string>sokoban/kfm/kfm_attack_north_01</string>
+      <string>sokoban/kfm/kfm_attack_north_02</string>
+      <string>sokoban/kfm/kfm_attack_north_03</string>
+    </array>
+  </dict>
+
+  <key>actor_attack_south</key>
+  <dict>
+    <key>delay</key>
+    <real>0.7</real>
+    <key>frames</key>
+    <array>
+      <string>sokoban/kfm/kfm_attack_south_00</string>
+      <string>sokoban/kfm/kfm_attack_south_01</string>
+      <string>sokoban/kfm/kfm_attack_south_02</string>
+      <string>sokoban/kfm/kfm_attack_south_03</string>
+    </array>
+  </dict>
+
+  <key>actor_attack_east</key>
+  <dict>
+    <key>delay</key>
+    <real>0.7</real>
+    <key>frames</key>
+    <array>
+      <string>sokoban/kfm/kfm_attack_east_00</string>
+      <string>sokoban/kfm/kfm_attack_east_01</string>
+      <string>sokoban/kfm/kfm_attack_east_02</string>
+      <string>sokoban/kfm/kfm_attack_east_03</string>
+    </array>
+  </dict>
+
+  <key>actor_attack_west</key>
+  <dict>
+    <key>delay</key>
+    <real>0.7</real>
+    <key>frames</key>
+    <array>
+      <string>sokoban/kfm/kfm_attack_west_00</string>
+      <string>sokoban/kfm/kfm_attack_west_01</string>
+      <string>sokoban/kfm/kfm_attack_west_02</string>
+      <string>sokoban/kfm/kfm_attack_west_03</string>
+    </array>
+  </dict>
+
 
   </dict>
 </dict>
