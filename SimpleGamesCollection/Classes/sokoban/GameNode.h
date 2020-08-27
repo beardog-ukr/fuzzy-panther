@@ -49,11 +49,12 @@ protected:
 
   cocos2d::TMXTiledMap* mapNode;
 
-  void doActorAttack(const int diffX, const int diffY);
+//  void doActorAttack(const int diffX, const int diffY);
   bool doMoveBox(const int boxX, const int boxY, const int diffX, const int diffY);
   void processMoveRequest(const int diffX, const int diffY);
 
   void processActionEnd(float dt);
+  void processAttackEnd(float dt);
   void reevaluateTargets();
 
   ActorNode* actor;

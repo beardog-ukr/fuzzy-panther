@@ -11,6 +11,7 @@ public:
   static ActorNode* create(const float iterationDuration, std::shared_ptr<SixCatsLogger> c6);
 
   void setGamePosition(const int gameX, const int gameY);
+  void doAttackTo(const int gameX, const int gameY);
   void doChangePositionTo(const int gameX, const int gameY);
 
   int getValue() const;

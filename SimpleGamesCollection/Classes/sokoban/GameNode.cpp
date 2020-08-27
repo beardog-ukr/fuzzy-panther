@@ -83,9 +83,9 @@ GameNode* GameNode::create(std::shared_ptr<SixCatsLogger> inc6) {
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-void GameNode::doActorAttack(const int diffX, const int diffY) {
-  //
-}
+//void GameNode::doActorAttack(const int diffX, const int diffY) {
+//  //
+//}
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
@@ -369,6 +369,19 @@ void GameNode::processKey(cocos2d::EventKeyboard::KeyCode keyCode) {
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
+void GameNode::processAttackEnd(float ) {
+  actionInProcess = false;
+
+  reevaluateTargets();
+
+  if (hasBufferedSomething) {
+    hasBufferedSomething = false;
+    processKey(bufferedKeyCode);
+  }
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
 void GameNode::processActionEnd(float ) {
   actionInProcess = false;
 
@@ -402,8 +415,12 @@ void GameNode::processMoveRequest(const int diffX, const int diffY) {
 
   if (needToPush) {
     if (doMoveBox(newPos.first, newPos.second, diffX, diffY)) {
-      doActorAttack(diffX, diffY);
+      actor->doAttackTo(newPos.first, newPos.second);
+//      doActorAttack(diffX, diffY);
     }
+
+    actionInProcess = true;
+    schedule(CC_SCHEDULE_SELECTOR(GameNode::processAttackEnd), kIterationDuration, 0, 0);
     return;
   }
 

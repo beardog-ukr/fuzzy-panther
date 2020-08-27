@@ -24,6 +24,18 @@ static const struct {
   .west = "actor_move_west"
 };
 
+static const struct {
+  string north;
+  string south;
+  string east;
+  string west;
+} kAttackAnimationNames = {
+  .north = "actor_attack_north",
+  .south = "actor_attack_south",
+  .east = "actor_attack_east",
+  .west = "actor_attack_west"
+};
+
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 ActorNode::ActorNode(const float id) {
@@ -67,6 +79,33 @@ ActorNode* ActorNode::create(const float iterationDuration, shared_ptr<SixCatsLo
 
   pRet->autorelease();
   return pRet;
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+void ActorNode::doAttackTo(const int newGameX, const int newGameY) {
+  string an;
+  if (newGameX == gameX) {
+    if (newGameY > gameY) {
+      an = kAttackAnimationNames.north;
+    }
+    else {
+      an = kAttackAnimationNames.south;
+    }
+  }
+  else {
+    if (newGameX > gameX) {
+      an = kAttackAnimationNames.east;
+    }
+    else {
+      an = kAttackAnimationNames.west;
+    }
+  }
+  Animation* animation = AnimationCache::getInstance()->getAnimation(an);
+  animation->setDelayPerUnit(iterationDuration/animation->getTotalDelayUnits());
+  Animate* animate = Animate::create(animation);
+
+  runAction(animate);
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
