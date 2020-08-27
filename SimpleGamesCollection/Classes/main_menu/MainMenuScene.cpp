@@ -10,6 +10,7 @@
 #include "life/LifeMainScene.h"
 #include "repeat/RepeatMainScene.h"
 #include "snake/SnakeMainScene.h"
+#include "sokoban/SokobanMainScene.h"
 
 #include "SixCatsLogger.h"
 #include "SixCatsLoggerMacro.h"
@@ -363,6 +364,9 @@ void MainMenuScene::mcSwitchToGame(cocos2d::Ref *pSender, const int menuCode) {
   }
   else if (menuCode == kSnake) {
     newScene = snake::SnakeMainScene::createScene(c6);
+  }
+  else if (menuCode == kSokoban) {
+    newScene = sokoban::SokobanMainScene::createScene(c6);
   }
 
   else {
