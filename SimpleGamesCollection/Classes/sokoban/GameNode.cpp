@@ -63,6 +63,29 @@ GameNode::~GameNode() {
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
+bool GameNode::checkForEndGame() {
+  bool result = true;   // true for "all are filled"
+
+  for(auto& targetInfo: targetsInfo) {
+    bool stateIsFilled = false;
+    for (const auto& boxInfo: boxesInfo) {
+      if ((targetInfo.gameX==boxInfo.gameX)&&(targetInfo.gameY == boxInfo.gameY)) {
+        stateIsFilled = true;
+        break;
+      }
+    }
+
+    if (!stateIsFilled) {
+      result = false;
+      break;
+    }
+  }
+
+  return result;
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
 GameNode* GameNode::create(std::shared_ptr<SixCatsLogger> inc6) {
   GameNode *result = new (std::nothrow) GameNode();
 
@@ -80,12 +103,6 @@ GameNode* GameNode::create(std::shared_ptr<SixCatsLogger> inc6) {
   result->autorelease();
   return result;
 }
-
-// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
-
-//void GameNode::doActorAttack(const int diffX, const int diffY) {
-//  //
-//}
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
@@ -336,39 +353,6 @@ bool GameNode::loadSpriteCache(std::shared_ptr<SixCatsLogger> c6) {
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-void GameNode::processKey(cocos2d::EventKeyboard::KeyCode keyCode) {
-  C6_D2(c6, "here for ", (int)keyCode);
-
-  if (actionInProcess) {
-    C6_D1(c6, "Action ignored and buffered");
-    hasBufferedSomething = true;
-    bufferedKeyCode = keyCode;
-    return;
-  }
-
-  int diffX = 0;
-  int diffY = 0;
-
-  if (keyCode == EventKeyboard::KeyCode::KEY_DOWN_ARROW) {
-    diffY = -1;
-  }
-  else if (keyCode == EventKeyboard::KeyCode::KEY_UP_ARROW) {
-    diffY = 1;
-  }
-  else if (keyCode == EventKeyboard::KeyCode::KEY_LEFT_ARROW) {
-    diffX = -1;
-  }
-  else if (keyCode == EventKeyboard::KeyCode::KEY_RIGHT_ARROW) {
-    diffX = 1;
-  }
-
-  if ((diffX!=0)||(diffY!=0)) {
-    processMoveRequest(diffX, diffY);
-  }
-}
-
-// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
-
 void GameNode::processAttackEnd(float ) {
   actionInProcess = false;
 
@@ -393,6 +377,43 @@ void GameNode::processActionEnd(float ) {
     hasBufferedSomething = false;
     processKey(bufferedKeyCode);
   }
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+bool GameNode::processKey(cocos2d::EventKeyboard::KeyCode keyCode) {
+  C6_D2(c6, "here for ", (int)keyCode);
+
+  if (actionInProcess) {
+    C6_D1(c6, "Action ignored and buffered");
+    hasBufferedSomething = true;
+    bufferedKeyCode = keyCode;
+    return false;
+  }
+
+  int diffX = 0;
+  int diffY = 0;
+
+  if (keyCode == EventKeyboard::KeyCode::KEY_DOWN_ARROW) {
+    diffY = -1;
+  }
+  else if (keyCode == EventKeyboard::KeyCode::KEY_UP_ARROW) {
+    diffY = 1;
+  }
+  else if (keyCode == EventKeyboard::KeyCode::KEY_LEFT_ARROW) {
+    diffX = -1;
+  }
+  else if (keyCode == EventKeyboard::KeyCode::KEY_RIGHT_ARROW) {
+    diffX = 1;
+  }
+
+  if ((diffX!=0)||(diffY!=0)) {
+    processMoveRequest(diffX, diffY);
+
+    return checkForEndGame();
+  }
+
+  return false;
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .

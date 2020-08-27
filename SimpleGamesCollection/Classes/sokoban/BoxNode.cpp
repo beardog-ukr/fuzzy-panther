@@ -142,10 +142,8 @@ void BoxNode::doChangePositionTo(const int newGameX, const int newGameY) {
 
   runAction(animate);
 
-//  RotateBy* ra = RotateBy::create(iterationDuration, 360);
   MoveTo* ma = MoveTo::create(iterationDuration, newPosition);
 
-//  runAction(ra);
   runAction(ma);
 
   gameX = newGameX;

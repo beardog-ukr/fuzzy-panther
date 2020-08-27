@@ -77,8 +77,10 @@ void TargetNode::setFilled(const bool filled) {
   }
 
   string fs = kOpenFrameName;
+  currentFilledState = true;
   if (filled == true) {
     fs = kFilledFrameName;
+    currentFilledState = false;
   }
 
   setSpriteFrame(fs);

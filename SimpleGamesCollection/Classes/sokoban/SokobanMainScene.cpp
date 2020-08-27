@@ -225,7 +225,9 @@ void SokobanMainScene::mcBackToMain(cocos2d::Ref *pSender) {
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 void SokobanMainScene::mcTryAgain(cocos2d::Ref *pSender) {
-  // gameNode->resetForNewGame();
+  gameNode->removeFromParentAndCleanup(true);
+  initGameNode();
+
   gameOverMenu->setVisible(false);
   lastGameOverImage->setVisible(false);
   gameOver = false;
@@ -255,16 +257,14 @@ void SokobanMainScene::onKeyPressedScene(EventKeyboard::KeyCode keyCode, Event *
   if (EventKeyboard::KeyCode::KEY_BACKSPACE == keyCode) {
     Director::getInstance()->popScene();
   }
-  else if (EventKeyboard::KeyCode::KEY_SPACE == keyCode) {
-    // gameNode->startNewGame([this](bool gameResult) {
-    //   this->processGameOver(gameResult);      //
-    // });
-  }
   else if ((EventKeyboard::KeyCode::KEY_DOWN_ARROW == keyCode)||
            (EventKeyboard::KeyCode::KEY_UP_ARROW == keyCode)||
            (EventKeyboard::KeyCode::KEY_LEFT_ARROW == keyCode)||
            (EventKeyboard::KeyCode::KEY_RIGHT_ARROW == keyCode)) {
-    gameNode->processKey(keyCode);
+    const bool gr = gameNode->processKey(keyCode);
+    if (gr) {
+      processGameOver(true);
+    }
   }
   else if (EventKeyboard::KeyCode::KEY_X == keyCode) {
     c6->d(__c6_MN__, "Need to get out.");

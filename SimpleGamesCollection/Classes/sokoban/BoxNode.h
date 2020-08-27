@@ -24,8 +24,6 @@ protected:
   int gameX;
   int gameY;
 
-//  std::string currentDFN;//current default frame name
-
   cocos2d::Vec2 calculatePosition(const int x, const int y) const;
 };
 

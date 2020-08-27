@@ -20,7 +20,7 @@ public:
   static bool loadSpriteCache(std::shared_ptr<SixCatsLogger> c6);
   static void unloadSpriteCache();
 
-  void processKey(cocos2d::EventKeyboard::KeyCode keyCode);
+  bool processKey(cocos2d::EventKeyboard::KeyCode keyCode);
 
 protected:
   GameNode();
@@ -49,13 +49,14 @@ protected:
 
   cocos2d::TMXTiledMap* mapNode;
 
-//  void doActorAttack(const int diffX, const int diffY);
   bool doMoveBox(const int boxX, const int boxY, const int diffX, const int diffY);
   void processMoveRequest(const int diffX, const int diffY);
 
   void processActionEnd(float dt);
   void processAttackEnd(float dt);
   void reevaluateTargets();
+
+  bool checkForEndGame();
 
   ActorNode* actor;
 
